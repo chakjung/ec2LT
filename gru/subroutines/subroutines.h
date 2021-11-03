@@ -12,3 +12,6 @@ void updateInstances(Aws::EC2::Model::InstanceStateName &,
 
 // DescribeInstances within all regions
 void describeInstances(std::vector<Region> &);
+
+// TerminateInstances within all regions
+void terminateInstances(std::vector<Region> &);

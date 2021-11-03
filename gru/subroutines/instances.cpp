@@ -11,6 +11,8 @@ void updateInstances(Aws::EC2::Model::InstanceStateName &state,
 
 // DescribeInstances within all regions
 void describeInstances(std::vector<Region> &regions) {
+  std::cout << "Instances detail\n" << std::endl;
+
   for (Region &region : regions) {
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
@@ -28,4 +30,14 @@ void describeInstances(std::vector<Region> &regions) {
                 << std::endl;
     }
   }
+}
+
+// TerminateInstances within all regions
+void terminateInstances(std::vector<Region> &regions) {
+  std::cout << "Terminating all instances..." << std::endl;
+  for (Region &region : regions) {
+    region.TerminateInstances();
+  }
+  updateInstances(Aws::EC2::Model::InstanceStateName::terminated, regions);
+  std::cout << "All instances terminated\n" << std::endl;
 }

@@ -3,12 +3,12 @@
 #include "region/region.h" // Region
 
 #include "subroutines/subroutines.h" // describeRegions()
-// updateInstances(), describeInstances()
+// updateInstances(), describeInstances(), terminateInstances()
 
 #include "config.h" // TAGKEY
 // DEBIAN10AWSACCOUNTID, OSFILTERS
 // SECURITYGROUPNAME, SECURITYGROUPDESCRIPTION
-// INSTANCETYPE
+// INSTANCETYPE, MINIONSPORT
 
 int main() {
   // Init aws sdk
@@ -73,6 +73,46 @@ int main() {
 
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions);
   describeInstances(regions);
+
+  // Config SG request
+  Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest SGConfigReq;
+  SGConfigReq.SetGroupName(SECURITYGROUPNAME);
+  for (Region &region : regions) {
+    for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
+         region.Instances) {
+      Aws::EC2::Model::IpRange publicIp;
+      publicIp.SetCidrIp(instance.second.GetPublicIpAddress() + "/32");
+      Aws::EC2::Model::IpPermission publicIpPermission;
+      publicIpPermission.SetIpProtocol("tcp");
+      publicIpPermission.SetToPort(MINIONSPORT);
+      publicIpPermission.SetFromPort(MINIONSPORT);
+      publicIpPermission.AddIpRanges(publicIp);
+      SGConfigReq.AddIpPermissions(publicIpPermission);
+
+      Aws::EC2::Model::IpRange privateIp;
+      privateIp.SetCidrIp(instance.second.GetPrivateIpAddress() + "/32");
+      Aws::EC2::Model::IpPermission privateIpPermission;
+      privateIpPermission.SetIpProtocol("tcp");
+      privateIpPermission.SetToPort(MINIONSPORT);
+      privateIpPermission.SetFromPort(MINIONSPORT);
+      privateIpPermission.AddIpRanges(privateIp);
+      SGConfigReq.AddIpPermissions(privateIpPermission);
+    }
+  }
+
+  std::cout << "Configuring SG foreach region..." << std::endl;
+  for (Region &region : regions) {
+    region.ConfigSG(SGConfigReq);
+  }
+  std::cout << "All SGs configured\n" << std::endl;
+
+  terminateInstances(regions);
+
+  std::cout << "Deleting SG foreach region..." << std::endl;
+  for (Region &region : regions) {
+    region.DeleteSecurityGroup();
+  }
+  std::cout << "All SGs deleted\n" << std::endl;
 
   // Terminate aws sdk
   Aws::ShutdownAPI(options);

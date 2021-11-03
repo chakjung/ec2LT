@@ -2,9 +2,11 @@
 
 #include "../config.h" // UPDATEINSTANCEDELAY
 
-#include "../errorCode.h" // UPDATEINSTANCESERRNUM, UPDATEINSTANCESWRONGAMOUNTERRNUM
+#include "../errorCode.h"
+// UPDATEINSTANCESERRNUM, UPDATEINSTANCESWRONGAMOUNTERRNUM
+// TERMINATEINSTANCESERRNUM
 
-// UpdateInstances within this regions
+// UpdateInstances within this region
 // Blocked until instance state are satisfied
 void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state) {
   // Foreach instance in instances
@@ -32,7 +34,7 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state) {
       if (describedInstances.size() != 1) {
         std::cout << "Incorrect amount of EC2 instances described for "
                   << instance.second.GetInstanceId() << "\n"
-                  << describeOutcome.GetError().GetMessage() << std::endl;
+                  << desOutcome.GetError().GetMessage() << std::endl;
         exit(UPDATEINSTANCESWRONGAMOUNTERRNUM);
       }
 
@@ -45,5 +47,29 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state) {
       match = true;
       instance.second = describedInstances[0];
     }
+  }
+}
+
+// TerminateInstances within this region
+void Region::TerminateInstances() {
+  if (Instances.empty()) {
+    return;
+  }
+
+  Aws::EC2::Model::TerminateInstancesRequest termReq;
+
+  // Foreach instance in instances
+  for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
+       Instances) {
+    termReq.AddInstanceIds(instance.second.GetInstanceId());
+  }
+
+  Aws::EC2::Model::TerminateInstancesOutcome termOutcome =
+      RegionalClient.TerminateInstances(termReq);
+
+  if (!termOutcome.IsSuccess()) {
+    std::cout << "Failed to terminate EC2 instance at " << RegionName << "\n"
+              << termOutcome.GetError().GetMessage() << std::endl;
+    exit(TERMINATEINSTANCESERRNUM);
   }
 }
