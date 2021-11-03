@@ -1,8 +1,8 @@
 #include <aws/core/Aws.h> // InitAPI(), ShutdownAPI()
 
-#include "region.h" // Region
+#include "region/region.h" // Region
 
-#include "describeRegions.h" // describeRegions()
+#include "subroutines/subroutines.h" // describeRegions()
 
 #include "config.h" // DEBIAN10AWSACCOUNTID, OSFILTERS
 

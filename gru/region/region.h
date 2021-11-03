@@ -8,6 +8,8 @@
 
 #include <aws/ec2/model/AuthorizeSecurityGroupIngressRequest.h> // AuthorizeSecurityGroupIngressRequest
 
+#include <aws/ec2/model/DeleteSecurityGroupRequest.h> // DeleteSecurityGroupRequest
+
 #include <aws/ec2/model/Instance.h> // Instance
 
 class Region {
@@ -26,4 +28,4 @@ public:
   std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> Instances;
   void UpdateInstances(const Aws::EC2::Model::InstanceStateName &);
   void TerminateInstances();
-}
+};

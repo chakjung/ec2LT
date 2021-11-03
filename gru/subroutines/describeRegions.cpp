@@ -1,6 +1,8 @@
-#pragma once
+#include "subroutines.h"
 
-#include "region.h" // Region
+#include <aws/ec2/model/DescribeRegionsRequest.h> // DescribeRegionsRequest
+
+#include "../errorCode.h" // DESCRIBEREGIONSERRNUM
 
 // DescribeRegions available for this client
 void describeRegions(Aws::EC2::EC2Client &client,
@@ -11,7 +13,7 @@ void describeRegions(Aws::EC2::EC2Client &client,
 
   if (!desOutcome.IsSuccess()) {
     std::cout << "Failed to describe regions\n"
-              << describeRegionsOutcome.GetError().GetMessage() << std::endl;
+              << desOutcome.GetError().GetMessage() << std::endl;
     exit(DESCRIBEREGIONSERRNUM);
   }
 

@@ -1,6 +1,6 @@
 #include "region.h"
 
-#include "errorCode.h" // QUERYOSIDERRNUM
+#include "../errorCode.h" // QUERYOSIDERRNUM
 
 // Get OSId via DescribeImagesRequest
 void Region::QueryOSId(const Aws::EC2::Model::DescribeImagesRequest &desReq) {

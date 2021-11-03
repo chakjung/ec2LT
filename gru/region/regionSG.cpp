@@ -1,6 +1,6 @@
 #include "region.h"
 
-#include "errorCode.h" // CREATESGERRNUM, CONFIGSGERRNUM, DELETESGERRNUM
+#include "../errorCode.h" // CREATESGERRNUM, CONFIGSGERRNUM, DELETESGERRNUM
 
 // Create SG via CreateSecurityGroupRequest
 void Region::CreateSG(
@@ -15,13 +15,13 @@ void Region::CreateSG(
     exit(CREATESGERRNUM);
   }
 
-  SGId = createOutcome.GetResult().GetGroupId();
+  SGId = crtOutcome.GetResult().GetGroupId();
 
   std::cout << "Security Group: " << crtReq.GetGroupName() << std::endl;
 }
 
 // Configure SG via AuthorizeSecurityGroupIngressRequest
-void ConfigSG(
+void Region::ConfigSG(
     const Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest &authReq) {
   // Configure SG
   Aws::EC2::Model::AuthorizeSecurityGroupIngressOutcome authOutcome =
