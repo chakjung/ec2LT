@@ -12,6 +12,10 @@
 
 #include <aws/ec2/model/Instance.h> // Instance
 
+#include <aws/ec2/model/DescribeAvailabilityZonesRequest.h> // DescribeAvailabilityZonesRequest
+
+#include <aws/ec2/model/RunInstancesRequest.h> // RunInstancesRequest
+
 class Region {
 public:
   Aws::String RegionName;
@@ -26,6 +30,7 @@ public:
   void DeleteSG();
 
   std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> Instances;
+  void CreateInstances(Aws::EC2::Model::RunInstancesRequest);
   void UpdateInstances(const Aws::EC2::Model::InstanceStateName &);
   void TerminateInstances();
 };

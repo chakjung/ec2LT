@@ -1,1 +1,4 @@
-add_library(region regionOS.cpp regionSG.cpp)
+add_library(region
+            regionCrtIN.cpp
+            regionOS.cpp
+            regionSG.cpp)

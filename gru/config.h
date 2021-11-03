@@ -1,5 +1,10 @@
 #pragma once
 
+#include <aws/ec2/model/InstanceType.h> // InstanceType
+
+// Tag key
+const char TAGKEY[] = "EC2LT";
+
 // Debian 10 Buster AWS account ID
 // Official page: https://wiki.debian.org/Cloud/AmazonEC2Image/Buster
 const Aws::String DEBIAN10AWSACCOUNTID("136693071363");
@@ -15,5 +20,10 @@ const std::vector<std::pair<std::string, std::string>> OSFILTERS =
         std::pair<std::string, std::string>("virtualization-type", "hvm"),
     };
 
-// Security Group name
+// Security Group
 const char SECURITYGROUPNAME[] = "EC2LT";
+const char SECURITYGROUPDESCRIPTION[] = "SG for EC2LT";
+
+// Instance type
+const Aws::EC2::Model::InstanceType INSTANCETYPE =
+    Aws::EC2::Model::InstanceType::t2_micro;
