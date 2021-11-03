@@ -28,6 +28,16 @@ int main() {
   std::vector<Region> regions;
   describeRegions(gruClient, regions);
 
+  // Delete me: Limiter
+  std::vector<Region> temp;
+  for (Region &region : regions) {
+    if (region.RegionName == "us-east-2" || region.RegionName == "eu-west-3") {
+      temp.push_back(region);
+    }
+  }
+  regions = temp;
+  // Delete me: Limiter
+
   // OSId describe request
   Aws::EC2::Model::DescribeImagesRequest OSIdDesReq;
   // Set OS owner
