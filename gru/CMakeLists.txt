@@ -15,5 +15,5 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 target_link_libraries(${PROJECT_NAME}
                       ${AWSSDK_LINK_LIBRARIES}
-                      region
-                      subroutines)
+                      subroutines
+                      region)

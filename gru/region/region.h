@@ -16,6 +16,11 @@
 
 #include <aws/ec2/model/RunInstancesRequest.h> // RunInstancesRequest
 
+#include <aws/ec2/model/DescribeInstancesRequest.h> // DescribeInstancesRequest
+#include <unistd.h>                                 // sleep
+
+#include <aws/ec2/model/TerminateInstancesRequest.h> // TerminateInstancesRequest
+
 class Region {
 public:
   Aws::String RegionName;
@@ -31,6 +36,7 @@ public:
 
   std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> Instances;
   void CreateInstances(Aws::EC2::Model::RunInstancesRequest);
-  void UpdateInstances(const Aws::EC2::Model::InstanceStateName &);
+  void UpdateInstances(const Aws::EC2::Model::InstanceStateName &,
+                       unsigned int &);
   void TerminateInstances();
 };

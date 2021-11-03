@@ -1,14 +1,13 @@
 #include "region.h"
 
-#include "../config.h" // UPDATEINSTANCEDELAY
-
 #include "../errorCode.h"
 // UPDATEINSTANCESERRNUM, UPDATEINSTANCESWRONGAMOUNTERRNUM
 // TERMINATEINSTANCESERRNUM
 
 // UpdateInstances within this region
 // Blocked until instance state are satisfied
-void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state) {
+void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
+                             unsigned int &delay) {
   // Foreach instance in instances
   for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
        Instances) {
@@ -40,7 +39,7 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state) {
 
       // Not match yet
       if (describedInstances[0].GetState().GetName() != state) {
-        sleep(UPDATEINSTANCEDELAY);
+        sleep(delay);
         continue;
       }
 

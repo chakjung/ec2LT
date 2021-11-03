@@ -2,10 +2,10 @@
 
 // UpdateInstances within all regions
 // Blocked until instance state are satisfied
-void updateInstances(Aws::EC2::Model::InstanceStateName &state,
-                     std::vector<Region> &regions) {
+void updateInstances(const Aws::EC2::Model::InstanceStateName &state,
+                     std::vector<Region> &regions, unsigned int &delay) {
   for (Region &region : regions) {
-    region.UpdateInstances(state);
+    region.UpdateInstances(state, delay);
   }
 }
 
@@ -34,10 +34,7 @@ void describeInstances(std::vector<Region> &regions) {
 
 // TerminateInstances within all regions
 void terminateInstances(std::vector<Region> &regions) {
-  std::cout << "Terminating all instances..." << std::endl;
   for (Region &region : regions) {
     region.TerminateInstances();
   }
-  updateInstances(Aws::EC2::Model::InstanceStateName::terminated, regions);
-  std::cout << "All instances terminated\n" << std::endl;
 }

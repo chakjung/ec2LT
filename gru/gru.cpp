@@ -9,6 +9,7 @@
 // DEBIAN10AWSACCOUNTID, OSFILTERS
 // SECURITYGROUPNAME, SECURITYGROUPDESCRIPTION
 // INSTANCETYPE, MINIONSPORT
+// UPDATEINSTANCEDELAY
 
 int main() {
   // Init aws sdk
@@ -81,7 +82,8 @@ int main() {
     std::cout << std::endl;
   }
 
-  updateInstances(Aws::EC2::Model::InstanceStateName::running, regions);
+  updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,
+                  UPDATEINSTANCEDELAY);
   describeInstances(regions);
 
   // Config SG request
@@ -116,11 +118,15 @@ int main() {
   }
   std::cout << "All SGs configured\n" << std::endl;
 
+  std::cout << "Terminating all instances..." << std::endl;
   terminateInstances(regions);
+  updateInstances(Aws::EC2::Model::InstanceStateName::terminated, regions,
+                  UPDATEINSTANCEDELAY);
+  std::cout << "All instances terminated\n" << std::endl;
 
   std::cout << "Deleting SG foreach region..." << std::endl;
   for (Region &region : regions) {
-    region.DeleteSecurityGroup();
+    region.DeleteSG();
   }
   std::cout << "All SGs deleted\n" << std::endl;
 
