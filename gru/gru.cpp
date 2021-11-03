@@ -3,6 +3,7 @@
 #include "region/region.h" // Region
 
 #include "subroutines/subroutines.h" // describeRegions()
+// updateInstances(), describeInstances()
 
 #include "config.h" // TAGKEY
 // DEBIAN10AWSACCOUNTID, OSFILTERS
@@ -69,6 +70,9 @@ int main() {
     region.CreateInstances(INCrtReq);
     std::cout << std::endl;
   }
+
+  updateInstances(Aws::EC2::Model::InstanceStateName::running, regions);
+  describeInstances(regions);
 
   // Terminate aws sdk
   Aws::ShutdownAPI(options);

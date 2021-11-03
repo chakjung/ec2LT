@@ -27,3 +27,6 @@ const char SECURITYGROUPDESCRIPTION[] = "SG for EC2LT";
 // Instance type
 const Aws::EC2::Model::InstanceType INSTANCETYPE =
     Aws::EC2::Model::InstanceType::t2_micro;
+
+// Update instance loop delay (sec)
+unsigned int UPDATEINSTANCEDELAY = 3;
