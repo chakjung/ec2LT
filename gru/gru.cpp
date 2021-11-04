@@ -32,7 +32,7 @@ int main() {
   // Delete me: Limiter
   std::vector<Region> temp;
   for (Region &region : regions) {
-    if (region.RegionName == "us-east-2" || region.RegionName == "eu-west-3") {
+    if (region.RegionName == "us-east-1") {
       temp.push_back(region);
     }
   }
@@ -86,12 +86,14 @@ int main() {
     region.CreateSG(SGCrtReq);
 
     // Some AZs in these region only support t3
-    if (regon.RegionName == "us-west-2" || regon.RegionName == "af-south-1" ||
-        regon.RegionName == "eu-north-1" || regon.RegionName == "ap-south-1" ||
-        regon.RegionName == "ap-northeast-3" ||
-        regon.RegionName == "ap-northeast-2" ||
-        regon.RegionName == "sa-east-1" || regon.RegionName == "ca-central-1" ||
-        regon.RegionName == "eu-south-1") {
+    if (region.RegionName == "us-west-2" || region.RegionName == "af-south-1" ||
+        region.RegionName == "eu-north-1" ||
+        region.RegionName == "ap-south-1" ||
+        region.RegionName == "ap-northeast-3" ||
+        region.RegionName == "ap-northeast-2" ||
+        region.RegionName == "sa-east-1" ||
+        region.RegionName == "ca-central-1" ||
+        region.RegionName == "eu-south-1") {
       region.CreateInstances(INCrtReqT3);
     } else {
       region.CreateInstances(INCrtReqT2);
