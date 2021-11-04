@@ -61,24 +61,42 @@ int main() {
   SGTagSpec.SetResourceType(Aws::EC2::Model::ResourceType::security_group);
   SGCrtReq.AddTagSpecifications(SGTagSpec);
 
-  // Create instance request
-  Aws::EC2::Model::RunInstancesRequest INCrtReq;
+  // Create instance request for t2 instances
+  Aws::EC2::Model::RunInstancesRequest INCrtReqT2;
   // Set Instance type
-  INCrtReq.SetInstanceType(INSTANCETYPE);
-  INCrtReq.SetMinCount(1);
-  INCrtReq.SetMaxCount(1);
+  INCrtReqT2.SetInstanceType(Aws::EC2::Model::InstanceType::t2_micro);
+  INCrtReqT2.SetMinCount(1);
+  INCrtReqT2.SetMaxCount(1);
+  // Create instance request for t3 instances
+  Aws::EC2::Model::RunInstancesRequest INCrtReqT3;
+  INCrtReqT3.SetInstanceType(Aws::EC2::Model::InstanceType::t3_micro);
+  INCrtReqT3.SetMinCount(1);
+  INCrtReqT3.SetMaxCount(1);
   // Set tag
   Aws::EC2::Model::TagSpecification INTagSpec;
   INTagSpec.AddTags(tag);
   INTagSpec.SetResourceType(Aws::EC2::Model::ResourceType::instance);
-  INCrtReq.AddTagSpecifications(INTagSpec);
+  INCrtReqT2.AddTagSpecifications(INTagSpec);
+  INCrtReqT3.AddTagSpecifications(INTagSpec);
 
   // Foreach region
   for (Region &region : regions) {
     std::cout << region.RegionName << std::endl;
     region.QueryOSId(OSIdDesReq);
     region.CreateSG(SGCrtReq);
-    region.CreateInstances(INCrtReq);
+
+    // Some AZs in these region only support t3
+    if (regon.RegionName == "us-west-2" || regon.RegionName == "af-south-1" ||
+        regon.RegionName == "eu-north-1" || regon.RegionName == "ap-south-1" ||
+        regon.RegionName == "ap-northeast-3" ||
+        regon.RegionName == "ap-northeast-2" ||
+        regon.RegionName == "sa-east-1" || regon.RegionName == "ca-central-1" ||
+        regon.RegionName == "eu-south-1") {
+      region.CreateInstances(INCrtReqT3);
+    } else {
+      region.CreateInstances(INCrtReqT2);
+    }
+
     std::cout << std::endl;
   }
 
