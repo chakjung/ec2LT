@@ -20,17 +20,6 @@ void describeRegions(Aws::EC2::EC2Client &client,
   // Foreach region
   for (const Aws::EC2::Model::Region &region :
        desOutcome.GetResult().GetRegions()) {
-
-    // At the time of writing
-    // DescribeInstances() doesn't work in these region
-    if (region.GetRegionName() == "eu-north-1" ||
-        region.GetRegionName() == "ap-south-1" ||
-        region.GetRegionName() == "ca-central-1" ||
-        region.GetRegionName() == "ap-southeast-1" ||
-        region.GetRegionName() == "eu-west-3") {
-      continue;
-    }
-
     // Config for regional client
     Aws::Client::ClientConfiguration regionalClientConfig;
     regionalClientConfig.region = region.GetRegionName();
