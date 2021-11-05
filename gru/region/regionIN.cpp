@@ -8,6 +8,7 @@
 // Blocked until instance state are satisfied
 void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
                              const unsigned int &delay) {
+  std::cout << RegionName << "\n" << std::flush;
   // Foreach instance in instances
   for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
        Instances) {
