@@ -37,6 +37,6 @@ public:
   std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> Instances;
   void CreateInstances(Aws::EC2::Model::RunInstancesRequest);
   void UpdateInstances(const Aws::EC2::Model::InstanceStateName &,
-                       unsigned int &);
+                       const unsigned int &);
   void TerminateInstances();
 };

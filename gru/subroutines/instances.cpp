@@ -3,7 +3,7 @@
 // UpdateInstances within all regions
 // Blocked until instance state are satisfied
 void updateInstances(const Aws::EC2::Model::InstanceStateName &state,
-                     std::vector<Region> &regions, unsigned int &delay) {
+                     std::vector<Region> &regions, const unsigned int &delay) {
   for (Region &region : regions) {
     region.UpdateInstances(state, delay);
   }
