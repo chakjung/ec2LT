@@ -14,6 +14,8 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
     Aws::EC2::Model::DescribeInstancesRequest desReq;
     desReq.AddInstanceIds(instance.second.GetInstanceId());
 
+    std::cout << instance.second.GetInstanceId() << "\n" << std::flush;
+
     // Keep requesting until instance state == state
     bool match = false;
     while (!match) {
@@ -23,7 +25,8 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
       if (!desOutcome.IsSuccess()) {
         std::cout << "Failed to describe EC2 instance "
                   << instance.second.GetInstanceId() << "\n"
-                  << desOutcome.GetError().GetMessage() << std::endl;
+                  << desOutcome.GetError().GetMessage() << "\n"
+                  << std::flush;
         exit(UPDATEINSTANCESERRNUM);
       }
 
@@ -33,7 +36,8 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
       if (describedInstances.size() != 1) {
         std::cout << "Incorrect amount of EC2 instances described for "
                   << instance.second.GetInstanceId() << "\n"
-                  << desOutcome.GetError().GetMessage() << std::endl;
+                  << desOutcome.GetError().GetMessage() << "\n"
+                  << std::flush;
         exit(UPDATEINSTANCESWRONGAMOUNTERRNUM);
       }
 
