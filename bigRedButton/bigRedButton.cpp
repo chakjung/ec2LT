@@ -42,6 +42,62 @@ int main() {
   }
 
   // Foreach region
+  // Initiate instance termination sequence
+  for (const Aws::EC2::Model::Region &region :
+       desRegionsOutcome.GetResult().GetRegions()) {
+    // Config for regional client
+    Aws::Client::ClientConfiguration regionalClientConfig;
+    regionalClientConfig.region = region.GetRegionName();
+    Aws::EC2::EC2Client regionalClient(regionalClientConfig);
+
+    // DescribeInstances
+    Aws::EC2::Model::DescribeInstancesRequest desINReq;
+    Aws::EC2::Model::DescribeInstancesOutcome desINOutcome =
+        regionalClient.DescribeInstances(desINReq);
+
+    if (!desINOutcome.IsSuccess()) {
+      std::cout << "Failed to describe EC2 instances\n"
+                << desINOutcome.GetError().GetMessage() << std::endl;
+      exit(UPDATEINSTANCESERRNUM);
+    }
+
+    Aws::EC2::Model::TerminateInstancesRequest termINReq;
+    bool instanceExist = false;
+
+    // Foreach instance in this region
+    for (const Aws::EC2::Model::Reservation &reservation :
+         desINOutcome.GetResult().GetReservations()) {
+      for (const Aws::EC2::Model::Instance &instance :
+           reservation.GetInstances()) {
+
+        // Current instance whitelisted
+        if (INSTANCEWHITELIST.find(instance.GetInstanceId()) !=
+            INSTANCEWHITELIST.end()) {
+          continue;
+        }
+
+        // Current instance not terminated
+        if (instance.GetState().GetName() !=
+            Aws::EC2::Model::InstanceStateName::terminated) {
+          instanceExist = true;
+          termINReq.AddInstanceIds(instance.GetInstanceId());
+        }
+      }
+    }
+
+    if (instanceExist) {
+      Aws::EC2::Model::TerminateInstancesOutcome termINOutcome =
+          regionalClient.TerminateInstances(termINReq);
+      if (!termINOutcome.IsSuccess()) {
+        std::cout << "Failed to terminate EC2 instance at "
+                  << region.GetRegionName() << "\n"
+                  << termINOutcome.GetError().GetMessage() << std::endl;
+        exit(TERMINATEINSTANCESERRNUM);
+      }
+    }
+  }
+
+  // Foreach region
   for (const Aws::EC2::Model::Region &region :
        desRegionsOutcome.GetResult().GetRegions()) {
     std::cout << "Tearing down " << region.GetRegionName() << std::endl;
