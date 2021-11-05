@@ -111,7 +111,6 @@ int main() {
   Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest SGConfigReq;
   SGConfigReq.SetGroupName(SECURITYGROUPNAME);
   for (Region &region : regions) {
-    std::cout << region.RegionName << "\n" << std::flush;
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
       Aws::EC2::Model::IpRange publicIp;
@@ -136,6 +135,7 @@ int main() {
 
   std::cout << "Configuring SG foreach region..." << std::endl;
   for (Region &region : regions) {
+    std::cout << region.RegionName << "\n" << std::flush;
     region.ConfigSG(SGConfigReq);
   }
   std::cout << "All SGs configured\n" << std::endl;
