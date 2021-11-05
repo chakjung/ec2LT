@@ -102,9 +102,10 @@ int main() {
     std::cout << std::endl;
   }
 
-  std::cout << "Updating instance informations...\n\n" << std::flush;
+  std::cout << "Updating instance informations...\n" << std::flush;
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,
                   UPDATEINSTANCEDELAY);
+  std::cout << "Instance informations updated\n\n" << std::flush;
   describeInstances(regions);
 
   // Config SG request
