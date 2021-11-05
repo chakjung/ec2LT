@@ -26,8 +26,8 @@ void describeInstances(std::vector<Region> &regions) {
       std::cout << "Private DNS: " << instance.second.GetPrivateDnsName()
                 << std::endl;
       std::cout << "Private  IP: " << instance.second.GetPrivateIpAddress()
-                << "\n"
-                << std::endl;
+                << "\n\n"
+                << std::flush;
     }
   }
 }

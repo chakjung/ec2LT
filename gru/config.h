@@ -27,4 +27,4 @@ const char SECURITYGROUPDESCRIPTION[] = "SG for EC2LT";
 const int MINIONSPORT = 37261;
 
 // Update instance loop delay (sec)
-unsigned int UPDATEINSTANCEDELAY = 3;
+const unsigned int UPDATEINSTANCEDELAY = 3;
