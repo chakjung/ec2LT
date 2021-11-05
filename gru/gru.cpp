@@ -5,6 +5,8 @@
 #include "subroutines/subroutines.h" // describeRegions()
 // updateInstances(), describeInstances(), terminateInstances()
 
+#include "database/database.h" // createDBTable()
+
 #include "config.h" // TAGKEY
 // DEBIAN10AWSACCOUNTID, OSFILTERS
 // SECURITYGROUPNAME, SECURITYGROUPDESCRIPTION
@@ -142,6 +144,12 @@ int main() {
     region.ConfigSG(SGConfigReq);
   }
   std::cout << "All SGs configured\n" << std::endl;
+
+  // EC2 Latency Test - proj specific start
+  Aws::Client::ClientConfiguration DBClientConfig;
+  Aws::DynamoDB::DynamoDBClient DBClient(DBClientConfig);
+  createDBTable(DBClient, DBTABLENAME, UPDATEDBTABLEDELAY);
+  // EC2 Latency Test - proj specific end
 
   std::cout << "Terminating all instances..." << std::endl;
   terminateInstances(regions);

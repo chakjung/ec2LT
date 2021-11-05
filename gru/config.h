@@ -28,3 +28,8 @@ const int MINIONSPORT = 37261;
 
 // Update instance loop delay (sec)
 const unsigned int UPDATEINSTANCEDELAY = 5;
+
+// DB table name
+const std::string DBTABLENAME("EC2LT");
+// Update DB table loop delay (sec)
+const unsigned int UPDATEDBTABLEDELAY = 5;
