@@ -70,7 +70,7 @@ int main() {
   // Minion init script
   const Aws::String MinionInitScript(
       "#!/bin/bash\n"
-      "cd ~\n"
+      "cd /home/admin\n"
       "yes | sudo apt update\n"
       "yes | sudo apt upgrade\n"
       "yes | sudo apt install git\n"
