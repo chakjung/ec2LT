@@ -65,6 +65,16 @@ int main() {
   SGTagSpec.SetResourceType(Aws::EC2::Model::ResourceType::security_group);
   SGCrtReq.AddTagSpecifications(SGTagSpec);
 
+  // Minion init script
+  const Aws::String MinionInitScript(
+      "#!/bin/bash\n"
+      "yes | sudo apt update\n"
+      "yes | sudo apt upgrade\n"
+      "yes | sudo apt install git\n"
+      "yes | git clone https://github.com/chakjung/ec2LT.git\n"
+      "cd ec2LT\n"
+      "yes | sudo ./minionInit.sh\n");
+
   // Create instance request for t2 instances
   Aws::EC2::Model::RunInstancesRequest INCrtReqT2;
   // Set Instance type
@@ -82,6 +92,8 @@ int main() {
   INTagSpec.SetResourceType(Aws::EC2::Model::ResourceType::instance);
   INCrtReqT2.AddTagSpecifications(INTagSpec);
   INCrtReqT3.AddTagSpecifications(INTagSpec);
+  INCrtReqT2.WithUserData(MinionInitScript);
+  INCrtReqT3.WithUserData(MinionInitScript);
 
   // Foreach region
   for (Region &region : regions) {
