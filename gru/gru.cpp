@@ -34,16 +34,14 @@ int main() {
   describeRegions(gruClient, regions);
 
   // Limiter
-  /**
   std::vector<Region> temp;
   for (Region &region : regions) {
-    if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-3"
-    || region.RegionName =="ap-northeast-1") {
+    if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-3" ||
+        region.RegionName == "ap-northeast-1") {
       temp.push_back(region);
     }
   }
   regions = temp;
-  */
 
   // OSId describe request
   Aws::EC2::Model::DescribeImagesRequest OSIdDesReq;
@@ -135,6 +133,26 @@ int main() {
   // Config SG request
   Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest SGConfigReq;
   SGConfigReq.SetGroupName(SECURITYGROUPNAME);
+
+  // Gru's ip
+  Aws::EC2::Model::IpRange gruPublicIp;
+  gruPublicIp.SetCidrIp(GRUPUBLICIP);
+  Aws::EC2::Model::IpPermission gruPublicIpPermission;
+  gruPublicIpPermission.SetIpProtocol("tcp");
+  gruPublicIpPermission.SetToPort(GRUSPORT);
+  gruPublicIpPermission.SetFromPort(GRUSPORT);
+  gruPublicIpPermission.AddIpRanges(gruPublicIp);
+  SGConfigReq.AddIpPermissions(gruPublicIpPermission);
+
+  Aws::EC2::Model::IpRange gruPrivateIp;
+  gruPrivateIp.SetCidrIp(GRUPRIVATEIP);
+  Aws::EC2::Model::IpPermission gruPrivateIpPermission;
+  gruPrivateIpPermission.SetIpProtocol("tcp");
+  gruPrivateIpPermission.SetToPort(GRUSPORT);
+  gruPrivateIpPermission.SetFromPort(GRUSPORT);
+  gruPrivateIpPermission.AddIpRanges(gruPrivateIp);
+  SGConfigReq.AddIpPermissions(gruPrivateIpPermission);
+
   for (Region &region : regions) {
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
@@ -142,7 +160,7 @@ int main() {
       publicIp.SetCidrIp(instance.second.GetPublicIpAddress() + "/32");
       Aws::EC2::Model::IpPermission publicIpPermission;
       publicIpPermission.SetIpProtocol("tcp");
-      publicIpPermission.SetToPort(MINIONSPORT);
+      publicIpPermission.SetToPort(GRUSPORT);
       publicIpPermission.SetFromPort(MINIONSPORT);
       publicIpPermission.AddIpRanges(publicIp);
       SGConfigReq.AddIpPermissions(publicIpPermission);
@@ -151,7 +169,7 @@ int main() {
       privateIp.SetCidrIp(instance.second.GetPrivateIpAddress() + "/32");
       Aws::EC2::Model::IpPermission privateIpPermission;
       privateIpPermission.SetIpProtocol("tcp");
-      privateIpPermission.SetToPort(MINIONSPORT);
+      privateIpPermission.SetToPort(GRUSPORT);
       privateIpPermission.SetFromPort(MINIONSPORT);
       privateIpPermission.AddIpRanges(privateIp);
       SGConfigReq.AddIpPermissions(privateIpPermission);
@@ -169,6 +187,17 @@ int main() {
   Aws::Client::ClientConfiguration DBClientConfig;
   Aws::DynamoDB::DynamoDBClient DBClient(DBClientConfig);
   createDBTable(DBClient, DBTABLENAME, UPDATEDBTABLEDELAY);
+
+  // Gather all instances
+  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> &> instances;
+  for (Region &region : regions) {
+    for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
+         region.Instances) {
+      instances.push_back(instance);
+    }
+  }
+
+  testLatency(DBClient, instances, GRUSPORT, BSIZE);
   // EC2 Latency Test - proj specific end
 
   std::cout << "Terminating all instances..." << std::endl;

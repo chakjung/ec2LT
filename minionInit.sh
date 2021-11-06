@@ -17,3 +17,7 @@ sudo apt dist-upgrade
 echo ""
 echo ""
 sudo systemctl start chrony
+
+cd minion
+make -f minion.makefile
+./minion
