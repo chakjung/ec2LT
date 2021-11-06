@@ -1,3 +1,14 @@
+#include <ifaddrs.h>    // getifaddrs
+#include <net/if.h>     // IFF_*
+#include <sys/socket.h> // socket
+#include <unistd.h>     // close
+
+#include <arpa/inet.h> // inet_ntop
+#include <stdio.h>     // printf
+
+#include <errno.h>  // perror
+#include <stdlib.h> // exit
+
 int main() {
   const int MINIONSPORT = 37261;
   const int GRUSPORT = MINIONSPORT + 1;
@@ -54,7 +65,7 @@ int main() {
   }
 
   // Specify Gru port
-  saddrIn.sin_port = htons(GRUSPORT);
+  saddrIn->sin_port = htons(GRUSPORT);
 
   // Bind socket to addr
   if (bind(sd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {

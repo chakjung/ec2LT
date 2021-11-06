@@ -38,5 +38,7 @@ const std::string DBTABLENAME("EC2LT");
 // Update DB table loop delay (sec)
 const unsigned int UPDATEDBTABLEDELAY = 5;
 
+// Wait Minion to come online delay (sec)
+const unsigned int CONNECTMINIONDELAY = 15;
 // communication buffer size (bytes)
 const unsigned short BSIZE = 128;

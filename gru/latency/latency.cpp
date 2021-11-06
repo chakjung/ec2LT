@@ -1,11 +1,16 @@
 #include "latency.h"
 
+#include <netdb.h>  // getaddrinfo
+#include <unistd.h> // close
+
+#include <stdlib.h> // exit
+
 #include "../errorCode.h" // MINIONCONNECTIONERRNUM
 
 // Test latency between all instances
 void testLatency(
     Aws::DynamoDB::DynamoDBClient &dbClient,
-    std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> &> &instances,
+    std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> &instances,
     const int &port, const int &buffSize, const int &delay) {
 
   // Hints of Minion connection
@@ -23,8 +28,10 @@ void testLatency(
     struct addrinfo *result;
 
     // Get Minion connection info
-    int getaddrinfoStat =
-        getaddrinfo(instance.second.GetPublicDnsName(), port, &hints, &result);
+    char portStr[10];
+    sprintf(portStr, "%d", port);
+    int getaddrinfoStat = getaddrinfo(
+        instance.second.GetPublicDnsName().c_str(), portStr, &hints, &result);
     if (getaddrinfoStat != 0) {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(getaddrinfoStat));
       exit(MINIONCONNECTIONERRNUM);

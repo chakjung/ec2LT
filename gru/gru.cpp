@@ -9,6 +9,8 @@
 
 #include "database/database.h" // createDBTable()
 
+#include "latency/latency.h" // testLatency()
+
 #include "config.h" // TAGKEY
 // DEBIAN10AWSACCOUNTID, OSFILTERS
 // SECURITYGROUPNAME, SECURITYGROUPDESCRIPTION
@@ -189,7 +191,7 @@ int main() {
   createDBTable(DBClient, DBTABLENAME, UPDATEDBTABLEDELAY);
 
   // Gather all instances
-  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> &> instances;
+  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> instances;
   for (Region &region : regions) {
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
@@ -197,7 +199,7 @@ int main() {
     }
   }
 
-  testLatency(DBClient, instances, GRUSPORT, BSIZE);
+  testLatency(DBClient, instances, GRUSPORT, BSIZE, CONNECTMINIONDELAY);
   // EC2 Latency Test - proj specific end
 
   std::cout << "Terminating all instances..." << std::endl;
