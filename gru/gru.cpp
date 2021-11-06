@@ -1,5 +1,7 @@
 #include <aws/core/Aws.h> // InitAPI(), ShutdownAPI()
 
+#include <aws/core/utils/HashingUtils.h> // HashingUtils
+
 #include "region/region.h" // Region
 
 #include "subroutines/subroutines.h" // describeRegions()
@@ -68,12 +70,18 @@ int main() {
   // Minion init script
   const Aws::String MinionInitScript(
       "#!/bin/bash\n"
+      "cd ~\n"
       "yes | sudo apt update\n"
       "yes | sudo apt upgrade\n"
       "yes | sudo apt install git\n"
       "yes | git clone https://github.com/chakjung/ec2LT.git\n"
       "cd ec2LT\n"
       "yes | sudo ./minionInit.sh\n");
+
+  Aws::Utils::HashingUtils hashingUtils;
+  const Aws::String MinionInitScript64 = hashingUtils.Base64Encode(
+      Aws::Utils::ByteBuffer((unsigned char *)MinionInitScript.c_str(),
+                             MinionInitScript.length()));
 
   // Create instance request for t2 instances
   Aws::EC2::Model::RunInstancesRequest INCrtReqT2;
@@ -92,8 +100,8 @@ int main() {
   INTagSpec.SetResourceType(Aws::EC2::Model::ResourceType::instance);
   INCrtReqT2.AddTagSpecifications(INTagSpec);
   INCrtReqT3.AddTagSpecifications(INTagSpec);
-  INCrtReqT2.WithUserData(MinionInitScript);
-  INCrtReqT3.WithUserData(MinionInitScript);
+  INCrtReqT2.WithUserData(MinionInitScript64);
+  INCrtReqT3.WithUserData(MinionInitScript64);
 
   // Foreach region
   for (Region &region : regions) {
