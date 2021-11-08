@@ -41,4 +41,4 @@ const unsigned int UPDATEDBTABLEDELAY = 5;
 // Wait Minion to come online delay (sec)
 const unsigned int CONNECTMINIONDELAY = 15;
 // Communication buffer size (bytes)
-const unsigned short BSIZE = 128;
+const unsigned short BSIZE = 255;

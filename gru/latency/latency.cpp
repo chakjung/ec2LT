@@ -21,6 +21,8 @@ void testLatency(
   memset(&hints, 0, sizeof(struct addrinfo));
   hints.ai_family = AF_INET;       // IPv4
   hints.ai_socktype = SOCK_STREAM; // TCP
+  char portStr[10];
+  sprintf(portStr, "%d", port);
 
   // Minion socket descriptors
   std::vector<int> minionSds;
@@ -31,8 +33,6 @@ void testLatency(
     struct addrinfo *result;
 
     // Get Minion connection info
-    char portStr[10];
-    sprintf(portStr, "%d", port);
     int getaddrinfoStat = getaddrinfo(
         instance->second.GetPublicDnsName().c_str(), portStr, &hints, &result);
     if (getaddrinfoStat != 0) {
@@ -91,7 +91,73 @@ void testLatency(
       fprintf(stderr, "Minion not PROCEED\n");
       exit(MINIONNOTPROCEEDERRNUM);
     }
+  }
 
-    std::cout << "Got PROCEED\n" << std::endl;
+  // Test all possible Minion combinations
+  for (unsigned int src = 0; src < instances.size(); ++src) {
+    for (unsigned int des = 0; des < instances.size(); ++des) {
+      if (src == des) {
+        continue;
+      }
+      // Assign roles
+      if (send(minionSds[src], "SRC", 4, 0) == -1) {
+        perror("send");
+        exit(MINIONSENDERRNUM);
+      }
+      if (send(minionSds[des], "DES", 4, 0) == -1) {
+        perror("send");
+        exit(MINIONSENDERRNUM);
+      }
+      // Verify roles
+      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+        perror("recv");
+        exit(MINIONRECVERRNUM);
+      }
+      if (strcmp(buffer, "SRC") != 0) {
+        fprintf(stderr, "SRC role unmatch\n");
+        exit(MINIONROLEERRNUM);
+      }
+      if (recv(minionSds[des], buffer, buffSize, 0) == -1) {
+        perror("recv");
+        exit(MINIONRECVERRNUM);
+      }
+      if (strcmp(buffer, "DES") != 0) {
+        fprintf(stderr, "DES role unmatch\n");
+        exit(MINIONROLEERRNUM);
+      }
+
+      // Send DES PublicDnsName to SRC
+      if (send(minionSds[src], instances[des]->second.GetPublicDnsName(),
+               instances[des]->second.GetPublicDnsName().length() + 1,
+               0) == -1) {
+        perror("send");
+        exit(MINIONSENDERRNUM);
+      }
+    }
+  }
+
+  // Inform Minions test has ended
+  for (int &minionSd : minionSds) {
+    if (send(minionSd, "BYE", 4, 0) == -1) {
+      perror("send");
+      exit(MINIONSENDERRNUM);
+    }
+  }
+  // Wait for "BYE" from Minion
+  for (int &minionSd : minionSds) {
+    if (recv(minionSd, buffer, buffSize, 0) == -1) {
+      perror("recv");
+      exit(MINIONRECVERRNUM);
+    }
+    // Minion not reply "BYE"
+    if (strcmp(buffer, "BYE") != 0) {
+      fprintf(stderr, "Minion not BYE\n");
+      exit(MINIONNOTBYEERRNUM);
+    }
+  }
+
+  // Close sockets
+  for (int &minionSd : minionSds) {
+    close(minionSd);
   }
 }

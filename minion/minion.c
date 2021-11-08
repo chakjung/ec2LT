@@ -1,6 +1,8 @@
 #include <ifaddrs.h> // getifaddrs
 #include <net/if.h>  // IFF_*
 
+#include <netdb.h> // getaddrinfo
+
 #include <sys/socket.h> // socket
 #include <unistd.h>     // close
 
@@ -82,29 +84,16 @@ int main() {
     exit(5);
   }
 
-  // Get socket info (addr, port, etc.)
-  if (getsockname(sd, (struct sockaddr *)saddrIn, &saddrInLen) == -1) {
-    perror("getsockname");
-    exit(6);
-  }
-
-  // addr to str
-  char addrStr[INET_ADDRSTRLEN];
-  if (inet_ntop(AF_INET, &(saddrIn->sin_addr), addrStr, INET_ADDRSTRLEN) ==
-      NULL) {
-    perror("inet_ntop");
-    exit(7);
-  }
-  printf("%s %d\n", addrStr, ntohs(saddrIn->sin_port));
-
   // Incoming Gru (Socket descriptor)
   struct sockaddr gru;
   socklen_t gruLen = sizeof(gru);
   int gruSd = accept(sd, &gru, &gruLen);
   if (gruSd == -1) {
     perror("accept");
-    exit(8);
+    exit(6);
   }
+
+  close(sd);
 
   // Communication buffer
   char buffer[BSIZE];
@@ -112,18 +101,129 @@ int main() {
   // Receive peer name
   if (recv(gruSd, buffer, BSIZE, 0) == -1) {
     perror("recv");
-    exit(9);
+    exit(7);
   }
 
   // Not connected to Gru
   if (strcmp(buffer, "GRU") != 0) {
     fprintf(stderr, "Fail to connect to Gru\n");
-    exit(10);
+    exit(8);
   }
 
   // Send "PROCEED"
   if (send(gruSd, "PROCEED", 8, 0) == -1) {
     perror("send");
-    exit(11);
+    exit(9);
   }
+
+  // Amount of char receive
+  short recvCCount;
+
+  // Hints of Minion connection
+  struct addrinfo hints;
+  memset(&hints, 0, sizeof(struct addrinfo));
+  hints.ai_family = AF_INET;       // IPv4
+  hints.ai_socktype = SOCK_STREAM; // TCP
+  char minionsPortStr[10];
+  sprintf(minionsPortStr, "%d", MINIONSPORT);
+
+  // Result of getting Minion connection info
+  struct addrinfo *result;
+
+  while (true) {
+    // Receive role
+    recvCCount = recv(gruSd, buffer, BSIZE, 0);
+    if (recvCCount == -1) {
+      perror("recv");
+      exit(10);
+    }
+    // Echo role
+    if (send(gruSd, buffer, recvCCount, 0) == -1) {
+      perror("send");
+      exit(11);
+    }
+
+    if (strcmp(buffer, "SRC") == 0) {
+      // Recv DES PublicDnsName
+      if (recv(gruSd, buffer, BSIZE, 0) == -1) {
+        perror("recv");
+        exit(12);
+      }
+      // Get Minion connection info
+      int getaddrinfoStat =
+          getaddrinfo(buffer, minionsPortStr, &hints, &result);
+      if (getaddrinfoStat != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(getaddrinfoStat));
+        exit(13);
+      }
+      // Fail to get Minion info
+      if (result == NULL) {
+        fprintf(stderr, "Could not get Minion connection info\n");
+        exit(14);
+      }
+
+      // Socket descriptor (IPv4, TCP, Minion connection protocol)
+      int desSd = socket(AF_INET, SOCK_STREAM, result->ai_protocol);
+      if (desSd == -1) {
+        perror("socket");
+        exit(15);
+      }
+
+      // Connect to Minion
+      while (connect(desSd, result->ai_addr, result->ai_addrlen) == -1) {
+        sleep(CONNECTMINIONDELAY);
+      }
+
+      // Free Minion connection info
+      freeaddrinfo(result);
+
+      close(desSd);
+
+    } else if (strcmp(buffer, "DES") == 0) {
+
+      // Socket descriptor (IPv4, TCP, default)
+      sd = socket(AF_INET, SOCK_STREAM, 0);
+      if (sd == -1) {
+        perror("socket");
+        exit(16);
+      }
+
+      // Specify Minion port
+      saddrIn->sin_port = htons(MINIONSPORT);
+      // Bind socket to addr
+      if (bind(sd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
+        perror("bind");
+        exit(17);
+      }
+
+      // Mark socket as passive
+      // Only allow 1 connection (0 backlog)
+      if (listen(sd, 0) == -1) {
+        perror("listen");
+        exit(18);
+      }
+
+      // Incoming src (Socket descriptor)
+      struct sockaddr src;
+      socklen_t srcLen = sizeof(src);
+      int srcSd = accept(sd, &src, &srcLen);
+      if (srcSd == -1) {
+        perror("accept");
+        exit(19);
+      }
+
+      close(sd);
+      close(srcSd);
+
+    } else if (strcmp(buffer, "BYE") == 0) {
+      break;
+    } else {
+      fprintf(stderr, "Unknown role\n");
+      exit(20);
+    }
+  }
+
+  close(gruSd);
+
+  exit(0);
 }
