@@ -1,6 +1,7 @@
 #include "latency.h"
 
-#include <netdb.h>  // getaddrinfo
+#include <netdb.h> // getaddrinfo
+
 #include <unistd.h> // close
 
 #include <stdlib.h> // exit
@@ -10,8 +11,10 @@
 // Test latency between all instances
 void testLatency(
     Aws::DynamoDB::DynamoDBClient &dbClient,
-    std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> &instances,
+    std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> &instances,
     const int &port, const int &buffSize, const int &delay) {
+
+  std::cout << "Starting latency test ..." << std::endl;
 
   // Hints of Minion connection
   struct addrinfo hints;
@@ -19,10 +22,10 @@ void testLatency(
   hints.ai_family = AF_INET;       // IPv4
   hints.ai_socktype = SOCK_STREAM; // TCP
 
-  // Socket descriptors
-  std::vector<int> sds;
+  // Minion socket descriptors
+  std::vector<int> minionSds;
 
-  for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
+  for (std::pair<Aws::String, Aws::EC2::Model::Instance> *&instance :
        instances) {
     // Result of getting Minion connection info
     struct addrinfo *result;
@@ -31,7 +34,7 @@ void testLatency(
     char portStr[10];
     sprintf(portStr, "%d", port);
     int getaddrinfoStat = getaddrinfo(
-        instance.second.GetPublicDnsName().c_str(), portStr, &hints, &result);
+        instance->second.GetPublicDnsName().c_str(), portStr, &hints, &result);
     if (getaddrinfoStat != 0) {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(getaddrinfoStat));
       exit(MINIONCONNECTIONERRNUM);
@@ -52,12 +55,15 @@ void testLatency(
 
     // Connect to Minion
     while (connect(sd, result->ai_addr, result->ai_addrlen) == -1) {
-      std::cout << "zzz...\n" << std::flush;
+      std::cout << "Waiting for " << instance->second.GetInstanceId()
+                << " to come online ...\n"
+                << std::flush;
       sleep(delay);
     }
-    std::cout << "connected\n" << std::flush;
+    std::cout << "Connected to " << instance->second.GetInstanceId() << "\n"
+              << std::flush;
 
-    sds.push_back(sd);
+    minionSds.push_back(sd);
 
     // Free Minion connection info
     freeaddrinfo(result);

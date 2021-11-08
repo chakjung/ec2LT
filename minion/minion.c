@@ -97,8 +97,8 @@ int main() {
   // Incoming Gru (Socket descriptor)
   struct sockaddr gru;
   socklen_t gruLen = sizeof(gru);
-  int grusd = accept(sd, &gru, &gruLen);
-  if (grusd == -1) {
+  int gruSd = accept(sd, &gru, &gruLen);
+  if (gruSd == -1) {
     perror("accept");
     exit(8);
   }

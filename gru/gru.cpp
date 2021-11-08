@@ -165,11 +165,11 @@ int main() {
   createDBTable(DBClient, DBTABLENAME, UPDATEDBTABLEDELAY);
 
   // Gather all instances
-  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance>> instances;
+  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> instances;
   for (Region &region : regions) {
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
-      instances.push_back(instance);
+      instances.push_back(&instance);
     }
   }
 
