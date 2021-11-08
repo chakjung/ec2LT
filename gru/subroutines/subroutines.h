@@ -15,3 +15,7 @@ void describeInstances(std::vector<Region> &);
 
 // TerminateInstances within all regions
 void terminateInstances(std::vector<Region> &);
+
+// Add rule to Security Group
+void addSGRule(Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest &,
+               const Aws::String &, const char *&, const int &, const int &);

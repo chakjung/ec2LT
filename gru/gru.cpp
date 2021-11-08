@@ -38,7 +38,7 @@ int main() {
   // Limiter
   std::vector<Region> temp;
   for (Region &region : regions) {
-    if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-3" ||
+    if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-2" ||
         region.RegionName == "ap-northeast-1") {
       temp.push_back(region);
     }
@@ -136,45 +136,19 @@ int main() {
   Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest SGConfigReq;
   SGConfigReq.SetGroupName(SECURITYGROUPNAME);
 
-  // Gru's ip
-  Aws::EC2::Model::IpRange gruPublicIp;
-  gruPublicIp.SetCidrIp(GRUPUBLICIP);
-  Aws::EC2::Model::IpPermission gruPublicIpPermission;
-  gruPublicIpPermission.SetIpProtocol("tcp");
-  gruPublicIpPermission.SetToPort(GRUSPORT);
-  gruPublicIpPermission.SetFromPort(GRUSPORT);
-  gruPublicIpPermission.AddIpRanges(gruPublicIp);
-  SGConfigReq.AddIpPermissions(gruPublicIpPermission);
-
-  Aws::EC2::Model::IpRange gruPrivateIp;
-  gruPrivateIp.SetCidrIp(GRUPRIVATEIP);
-  Aws::EC2::Model::IpPermission gruPrivateIpPermission;
-  gruPrivateIpPermission.SetIpProtocol("tcp");
-  gruPrivateIpPermission.SetToPort(GRUSPORT);
-  gruPrivateIpPermission.SetFromPort(GRUSPORT);
-  gruPrivateIpPermission.AddIpRanges(gruPrivateIp);
-  SGConfigReq.AddIpPermissions(gruPrivateIpPermission);
+  // Add Gru's ips
+  addSGRule(SGConfigReq, GRUPUBLICIP, "tcp", GRUSPORT, GRUSPORT);
+  addSGRule(SGConfigReq, GRUPRIVATEIP, "tcp", GRUSPORT, GRUSPORT);
 
   for (Region &region : regions) {
     for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
          region.Instances) {
-      Aws::EC2::Model::IpRange publicIp;
-      publicIp.SetCidrIp(instance.second.GetPublicIpAddress() + "/32");
-      Aws::EC2::Model::IpPermission publicIpPermission;
-      publicIpPermission.SetIpProtocol("tcp");
-      publicIpPermission.SetToPort(GRUSPORT);
-      publicIpPermission.SetFromPort(MINIONSPORT);
-      publicIpPermission.AddIpRanges(publicIp);
-      SGConfigReq.AddIpPermissions(publicIpPermission);
 
-      Aws::EC2::Model::IpRange privateIp;
-      privateIp.SetCidrIp(instance.second.GetPrivateIpAddress() + "/32");
-      Aws::EC2::Model::IpPermission privateIpPermission;
-      privateIpPermission.SetIpProtocol("tcp");
-      privateIpPermission.SetToPort(GRUSPORT);
-      privateIpPermission.SetFromPort(MINIONSPORT);
-      privateIpPermission.AddIpRanges(privateIp);
-      SGConfigReq.AddIpPermissions(privateIpPermission);
+      // Add Minion's ips
+      addSGRule(SGConfigReq, instance.second.GetPublicIpAddress() + "/32",
+                "tcp", MINIONSPORT, GRUSPORT);
+      addSGRule(SGConfigReq, instance.second.GetPrivateIpAddress() + "/32",
+                "tcp", MINIONSPORT, GRUSPORT);
     }
   }
 

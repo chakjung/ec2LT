@@ -1,5 +1,6 @@
-#include <ifaddrs.h>    // getifaddrs
-#include <net/if.h>     // IFF_*
+#include <ifaddrs.h> // getifaddrs
+#include <net/if.h>  // IFF_*
+
 #include <sys/socket.h> // socket
 #include <unistd.h>     // close
 
@@ -9,10 +10,9 @@
 #include <errno.h>  // perror
 #include <stdlib.h> // exit
 
-int main() {
-  const int MINIONSPORT = 37261;
-  const int GRUSPORT = MINIONSPORT + 1;
+#include "config.h" // MINIONSPORT, GRUSPORT
 
+int main() {
   // Get network interfaces info
   struct ifaddrs *ifaddr, *ifa;
   struct sockaddr_in *saddrIn;
@@ -66,7 +66,6 @@ int main() {
 
   // Specify Gru port
   saddrIn->sin_port = htons(GRUSPORT);
-
   // Bind socket to addr
   if (bind(sd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
     perror("bind");
