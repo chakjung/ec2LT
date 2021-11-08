@@ -78,11 +78,11 @@ void testLatency(
   }
 
   // Communication buffer
-  char buffer[BSIZE];
+  char buffer[buffSize];
 
   // Wait for "PROCEED" from Minion
   for (int &minionSd : minionSds) {
-    if (recv(minionSd, buffer, BSIZE, 0) == -1) {
+    if (recv(minionSd, buffer, buffSize, 0) == -1) {
       perror("recv");
       exit(MINIONRECVERRNUM);
     }

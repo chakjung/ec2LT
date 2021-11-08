@@ -5,7 +5,10 @@
 #include <unistd.h>     // close
 
 #include <arpa/inet.h> // inet_ntop
-#include <stdio.h>     // printf
+
+#include <string.h> // strcmp
+
+#include <stdio.h> // printf
 
 #include <errno.h>  // perror
 #include <stdlib.h> // exit
