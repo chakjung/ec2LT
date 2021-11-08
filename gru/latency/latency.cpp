@@ -127,7 +127,8 @@ void testLatency(
       }
 
       // Send DES PublicDnsName to SRC
-      if (send(minionSds[src], instances[des]->second.GetPublicDnsName(),
+      if (send(minionSds[src],
+               instances[des]->second.GetPublicDnsName().c_str(),
                instances[des]->second.GetPublicDnsName().length() + 1,
                0) == -1) {
         perror("send");
