@@ -103,7 +103,24 @@ int main() {
     exit(8);
   }
 
-  while (true) {
-    sleep(10);
+  // Communication buffer
+  char buffer[BSIZE];
+
+  // Receive peer name
+  if (recv(gruSd, buffer, BSIZE, 0) == -1) {
+    perror("recv");
+    exit(9);
+  }
+
+  // Not connected to Gru
+  if (strcmp(buffer, "GRU") != 0) {
+    fprintf(stderr, "Fail to connect to Gru\n");
+    exit(10);
+  }
+
+  // Send "PROCEED"
+  if (send(gruSd, "PROCEED", 8, 0) == -1) {
+    perror("send");
+    exit(11);
   }
 }

@@ -6,7 +6,7 @@
 
 #include <stdlib.h> // exit
 
-#include "../errorCode.h" // MINIONCONNECTIONERRNUM
+#include "../errorCode.h" // MINION*ERRNUM
 
 // Test latency between all instances
 void testLatency(
@@ -14,7 +14,7 @@ void testLatency(
     std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> &instances,
     const int &port, const int &buffSize, const int &delay) {
 
-  std::cout << "Starting latency test ..." << std::endl;
+  std::cout << "Starting latency test ...\n" << std::endl;
 
   // Hints of Minion connection
   struct addrinfo hints;
@@ -60,12 +60,38 @@ void testLatency(
                 << std::flush;
       sleep(delay);
     }
-    std::cout << "Connected to " << instance->second.GetInstanceId() << "\n"
+    std::cout << "Connected to " << instance->second.GetInstanceId() << "\n\n"
               << std::flush;
 
     minionSds.push_back(sd);
 
     // Free Minion connection info
     freeaddrinfo(result);
+  }
+
+  // Inform Minions has connected to Gru
+  for (int &minionSd : minionSds) {
+    if (send(minionSd, "GRU", 4, 0) == -1) {
+      perror("send");
+      exit(MINIONSENDERRNUM);
+    }
+  }
+
+  // Communication buffer
+  char buffer[BSIZE];
+
+  // Wait for "PROCEED" from Minion
+  for (int &minionSd : minionSds) {
+    if (recv(minionSd, buffer, BSIZE, 0) == -1) {
+      perror("recv");
+      exit(MINIONRECVERRNUM);
+    }
+    // Minion not reply "PROCEED"
+    if (strcmp(buffer, "PROCEED") != 0) {
+      fprintf(stderr, "Minion not PROCEED\n");
+      exit(MINIONNOTPROCEEDERRNUM);
+    }
+
+    std::cout << "Got PROCEED\n" << std::endl;
   }
 }

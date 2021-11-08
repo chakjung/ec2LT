@@ -1,3 +1,5 @@
+#include <algorithm> // random_shuffle()
+
 #include <aws/core/Aws.h> // InitAPI(), ShutdownAPI()
 
 #include <aws/core/utils/HashingUtils.h> // HashingUtils
@@ -6,6 +8,7 @@
 
 #include "subroutines/subroutines.h" // describeRegions()
 // updateInstances(), describeInstances(), terminateInstances()
+// addSGRule()
 
 #include "database/database.h" // createDBTable()
 
@@ -172,6 +175,7 @@ int main() {
       instances.push_back(&instance);
     }
   }
+  std::random_shuffle(instances.begin(), instances.end());
 
   testLatency(DBClient, instances, GRUSPORT, BSIZE, CONNECTMINIONDELAY);
   // EC2 Latency Test - proj specific end

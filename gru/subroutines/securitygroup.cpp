@@ -3,7 +3,7 @@
 // Add rule to Security Group
 void addSGRule(
     Aws::EC2::Model::AuthorizeSecurityGroupIngressRequest &SGConfigReq,
-    const Aws::String &ip, const char *&protocol, const int &lowerPort,
+    const Aws::String &ip, const char *protocol, const int &lowerPort,
     const int &upperPort) {
   Aws::EC2::Model::IpRange ipRange;
   ipRange.SetCidrIp(ip);
