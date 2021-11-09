@@ -177,8 +177,8 @@ int main() {
   }
   std::random_shuffle(instances.begin(), instances.end());
 
-  testLatency(DBClient, instances, GRUSPORT, BSIZE, CONNECTMINIONDELAY,
-              TRIALSPERCONNECTION);
+  testLatency(DBClient, DBTABLENAME, instances, GRUSPORT, BSIZE,
+              CONNECTMINIONDELAY, TRIALSPERCONNECTION);
   // EC2 Latency Test - proj specific end
 
   std::cout << "Terminating all instances..." << std::endl;

@@ -6,11 +6,13 @@
 
 #include <stdlib.h> // exit
 
+#include "../database/database.h" // putRttEntry()
+
 #include "../errorCode.h" // MINION*ERRNUM
 
 // Test latency between all instances
 void testLatency(
-    Aws::DynamoDB::DynamoDBClient &dbClient,
+    Aws::DynamoDB::DynamoDBClient &dbClient, const std::string &tableName,
     std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> &instances,
     const int &port, const int &buffSize, const int &delay,
     const int &trialsCount) {
@@ -81,6 +83,14 @@ void testLatency(
   // Communication buffer
   char buffer[buffSize];
 
+  // First test in this combination
+  bool firstTest;
+
+  char resolveTBuff[buffSize];
+  char handShakeTBuff[buffSize];
+  char utsBuff[buffSize];
+  char rttBuff[buffSize];
+
   // Wait for "PROCEED" from Minion
   for (int &minionSd : minionSds) {
     if (recv(minionSd, buffer, buffSize, 0) == -1) {
@@ -105,6 +115,7 @@ void testLatency(
 
       std::cout << instances[src]->first << " -> " << instances[des]->first
                 << std::endl;
+      firstTest = true;
 
       // Assign roles
       if (send(minionSds[src], "SRC", 4, 0) == -1) {
@@ -145,11 +156,11 @@ void testLatency(
       }
 
       // Get DNS resolution time
-      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+      if (recv(minionSds[src], resolveTBuff, buffSize, 0) == -1) {
         perror("recv");
         exit(MINIONRECVERRNUM);
       }
-      std::cout << "DNS resolution time: " << buffer << std::endl;
+      std::cout << "DNS resolution time: " << resolveTBuff << std::endl;
 
       // Ask for TCP handshake time
       if (send(minionSds[src], "TCP HANDSHAKE TIME", 19, 0) == -1) {
@@ -157,12 +168,13 @@ void testLatency(
         exit(MINIONSENDERRNUM);
       }
       // Get TCP handshake time
-      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+      if (recv(minionSds[src], handShakeTBuff, buffSize, 0) == -1) {
         perror("recv");
         exit(MINIONRECVERRNUM);
       }
-      std::cout << "TCP  handshake time: " << buffer << std::endl;
+      std::cout << "TCP  handshake time: " << handShakeTBuff << std::endl;
 
+      std::cout << "UnixTimestamp, RTT" << std::endl;
       for (unsigned char i = 0; i < trialsCount; ++i) {
         // Ask for UnixTimestamp
         if (send(minionSds[src], "UTS", 4, 0) == -1) {
@@ -170,11 +182,11 @@ void testLatency(
           exit(MINIONSENDERRNUM);
         }
         // Get UnixTimestamp
-        if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+        if (recv(minionSds[src], utsBuff, buffSize, 0) == -1) {
           perror("recv");
           exit(MINIONRECVERRNUM);
         }
-        std::cout << buffer << ", ";
+        std::cout << utsBuff << ", ";
 
         // Ask for RTT
         if (send(minionSds[src], "RTT", 4, 0) == -1) {
@@ -182,12 +194,23 @@ void testLatency(
           exit(MINIONSENDERRNUM);
         }
         // Get RTT
-        if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+        if (recv(minionSds[src], rttBuff, buffSize, 0) == -1) {
           perror("recv");
           exit(MINIONRECVERRNUM);
         }
-        std::cout << buffer << std::endl;
+        std::cout << rttBuff << std::endl;
+
+        if (firstTest) {
+          putRttEntry(dbClient, tableName, instances[src]->first,
+                      instances[des]->first, resolveTBuff, handShakeTBuff,
+                      utsBuff, rttBuff);
+          firstTest = false;
+        } else {
+          putRttEntry(dbClient, tableName, instances[src]->first,
+                      instances[des]->first, utsBuff, rttBuff);
+        }
       }
+      std::cout << std::endl;
     }
   }
 
