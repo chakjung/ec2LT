@@ -177,6 +177,11 @@ int main() {
       // Free Minion connection info
       freeaddrinfo(result);
 
+      if (send(gruSd, "result", 7, 0) == -1) {
+        perror("send");
+        exit(4321);
+      }
+
       close(desSd);
 
     } else if (strcmp(buffer, "DES") == 0) {

@@ -24,7 +24,7 @@ const std::vector<std::pair<std::string, std::string>> OSFILTERS =
 const char SECURITYGROUPNAME[] = "EC2LT";
 const char SECURITYGROUPDESCRIPTION[] = "SG for EC2LT";
 
-const Aws::String GRUPUBLICIP = "3.22.169.159/32";
+const Aws::String GRUPUBLICIP = "3.17.62.197/32";
 const Aws::String GRUPRIVATEIP = "172.31.33.96/32";
 
 const int MINIONSPORT = 37261;

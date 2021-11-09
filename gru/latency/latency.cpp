@@ -93,12 +93,18 @@ void testLatency(
     }
   }
 
+  std::cout << "All Minions agree to proceed\n" << std::endl;
+
   // Test all possible Minion combinations
   for (unsigned int src = 0; src < instances.size(); ++src) {
     for (unsigned int des = 0; des < instances.size(); ++des) {
       if (src == des) {
         continue;
       }
+
+      std::cout << instances[src]->first << " -> " << instances[des]
+                << std::endl;
+
       // Assign roles
       if (send(minionSds[src], "SRC", 4, 0) == -1) {
         perror("send");
@@ -126,6 +132,8 @@ void testLatency(
         exit(MINIONROLEERRNUM);
       }
 
+      std::cout << "Roles assigned" << std::endl;
+
       // Send DES PublicDnsName to SRC
       if (send(minionSds[src],
                instances[des]->second.GetPublicDnsName().c_str(),
@@ -134,6 +142,17 @@ void testLatency(
         perror("send");
         exit(MINIONSENDERRNUM);
       }
+
+      // Get results
+      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+        perror("recv");
+        exit(MINIONRECVERRNUM);
+      }
+      if (strcmp(buffer, "result") != 0) {
+        fprintf(stderr, "Result unmatch\n");
+        exit(4321);
+      }
+      std::cout << "Got results\n" << std::endl;
     }
   }
 
@@ -156,6 +175,8 @@ void testLatency(
       exit(MINIONNOTBYEERRNUM);
     }
   }
+
+  std::cout << "All Minions said bye~\n" << std::endl;
 
   // Close sockets
   for (int &minionSd : minionSds) {

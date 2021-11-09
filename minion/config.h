@@ -6,4 +6,4 @@ const int GRUSPORT = MINIONSPORT + 1;
 // Communication buffer size (bytes)
 const unsigned short BSIZE = 255;
 // Wait Minion to come online delay (sec)
-const unsigned int CONNECTMINIONDELAY = 15;
+const unsigned int CONNECTMINIONDELAY = 5;
