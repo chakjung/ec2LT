@@ -39,6 +39,7 @@ int main() {
   describeRegions(gruClient, regions);
 
   // Limiter
+  /**
   std::vector<Region> temp;
   for (Region &region : regions) {
     if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-2" ||
@@ -47,6 +48,7 @@ int main() {
     }
   }
   regions = temp;
+  */
 
   // OSId describe request
   Aws::EC2::Model::DescribeImagesRequest OSIdDesReq;
@@ -128,6 +130,9 @@ int main() {
 
     std::cout << std::endl;
   }
+
+  // Sleep 3hr for Chrony calibration
+  sleep(10800);
 
   std::cout << "Updating instance informations...\n" << std::flush;
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,

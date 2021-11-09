@@ -106,112 +106,118 @@ void testLatency(
 
   std::cout << "All Minions agree to proceed\n" << std::endl;
 
-  // Test all possible Minion combinations
-  for (unsigned int src = 0; src < instances.size(); ++src) {
-    for (unsigned int des = 0; des < instances.size(); ++des) {
-      if (src == des) {
-        continue;
-      }
+  // Test 20 times
+  for (unsigned int count = 0; count < 20; ++count) {
+    // Test all possible Minion combinations
+    for (unsigned int src = 0; src < instances.size(); ++src) {
+      for (unsigned int des = 0; des < instances.size(); ++des) {
+        if (src == des) {
+          continue;
+        }
 
-      std::cout << instances[src]->first << " -> " << instances[des]->first
-                << std::endl;
-      firstTest = true;
+        std::cout << instances[src]->first << " -> " << instances[des]->first
+                  << std::endl;
+        firstTest = true;
 
-      // Assign roles
-      if (send(minionSds[src], "SRC", 4, 0) == -1) {
-        perror("send");
-        exit(MINIONSENDERRNUM);
-      }
-      if (send(minionSds[des], "DES", 4, 0) == -1) {
-        perror("send");
-        exit(MINIONSENDERRNUM);
-      }
-      // Verify roles
-      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
-        perror("recv");
-        exit(MINIONRECVERRNUM);
-      }
-      if (strcmp(buffer, "SRC") != 0) {
-        fprintf(stderr, "SRC role unmatch\n");
-        exit(MINIONROLEERRNUM);
-      }
-      if (recv(minionSds[des], buffer, buffSize, 0) == -1) {
-        perror("recv");
-        exit(MINIONRECVERRNUM);
-      }
-      if (strcmp(buffer, "DES") != 0) {
-        fprintf(stderr, "DES role unmatch\n");
-        exit(MINIONROLEERRNUM);
-      }
-
-      std::cout << "Roles assigned" << std::endl;
-
-      // Send DES PublicDnsName to SRC
-      if (send(minionSds[src],
-               instances[des]->second.GetPublicDnsName().c_str(),
-               instances[des]->second.GetPublicDnsName().length() + 1,
-               0) == -1) {
-        perror("send");
-        exit(MINIONSENDERRNUM);
-      }
-
-      // Get DNS resolution time
-      if (recv(minionSds[src], resolveTBuff, buffSize, 0) == -1) {
-        perror("recv");
-        exit(MINIONRECVERRNUM);
-      }
-      std::cout << "DNS resolution time: " << resolveTBuff << std::endl;
-
-      // Ask for TCP handshake time
-      if (send(minionSds[src], "TCP HANDSHAKE TIME", 19, 0) == -1) {
-        perror("send");
-        exit(MINIONSENDERRNUM);
-      }
-      // Get TCP handshake time
-      if (recv(minionSds[src], handShakeTBuff, buffSize, 0) == -1) {
-        perror("recv");
-        exit(MINIONRECVERRNUM);
-      }
-      std::cout << "TCP  handshake time: " << handShakeTBuff << std::endl;
-
-      std::cout << "UnixTimestamp, RTT" << std::endl;
-      for (unsigned char i = 0; i < trialsCount; ++i) {
-        // Ask for UnixTimestamp
-        if (send(minionSds[src], "UTS", 4, 0) == -1) {
+        // Assign roles
+        if (send(minionSds[src], "SRC", 4, 0) == -1) {
           perror("send");
           exit(MINIONSENDERRNUM);
         }
-        // Get UnixTimestamp
-        if (recv(minionSds[src], utsBuff, buffSize, 0) == -1) {
-          perror("recv");
-          exit(MINIONRECVERRNUM);
-        }
-        std::cout << utsBuff << ", ";
-
-        // Ask for RTT
-        if (send(minionSds[src], "RTT", 4, 0) == -1) {
+        if (send(minionSds[des], "DES", 4, 0) == -1) {
           perror("send");
           exit(MINIONSENDERRNUM);
         }
-        // Get RTT
-        if (recv(minionSds[src], rttBuff, buffSize, 0) == -1) {
+        // Verify roles
+        if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
           perror("recv");
           exit(MINIONRECVERRNUM);
         }
-        std::cout << rttBuff << std::endl;
-
-        if (firstTest) {
-          putRttEntry(dbClient, tableName, instances[src]->first,
-                      instances[des]->first, resolveTBuff, handShakeTBuff,
-                      utsBuff, rttBuff);
-          firstTest = false;
-        } else {
-          putRttEntry(dbClient, tableName, instances[src]->first,
-                      instances[des]->first, utsBuff, rttBuff);
+        if (strcmp(buffer, "SRC") != 0) {
+          fprintf(stderr, "SRC role unmatch\n");
+          exit(MINIONROLEERRNUM);
         }
+        if (recv(minionSds[des], buffer, buffSize, 0) == -1) {
+          perror("recv");
+          exit(MINIONRECVERRNUM);
+        }
+        if (strcmp(buffer, "DES") != 0) {
+          fprintf(stderr, "DES role unmatch\n");
+          exit(MINIONROLEERRNUM);
+        }
+
+        std::cout << "Roles assigned" << std::endl;
+
+        // Send DES PublicDnsName to SRC
+        if (send(minionSds[src],
+                 instances[des]->second.GetPublicDnsName().c_str(),
+                 instances[des]->second.GetPublicDnsName().length() + 1,
+                 0) == -1) {
+          perror("send");
+          exit(MINIONSENDERRNUM);
+        }
+
+        // Get DNS resolution time
+        if (recv(minionSds[src], resolveTBuff, buffSize, 0) == -1) {
+          perror("recv");
+          exit(MINIONRECVERRNUM);
+        }
+        std::cout << "DNS resolution time: " << resolveTBuff << std::endl;
+
+        // Ask for TCP handshake time
+        if (send(minionSds[src], "TCP HANDSHAKE TIME", 19, 0) == -1) {
+          perror("send");
+          exit(MINIONSENDERRNUM);
+        }
+        // Get TCP handshake time
+        if (recv(minionSds[src], handShakeTBuff, buffSize, 0) == -1) {
+          perror("recv");
+          exit(MINIONRECVERRNUM);
+        }
+        std::cout << "TCP  handshake time: " << handShakeTBuff << std::endl;
+
+        std::cout << "UnixTimestamp, RTT" << std::endl;
+        for (unsigned char i = 0; i < trialsCount; ++i) {
+          // Ask for UnixTimestamp
+          if (send(minionSds[src], "UTS", 4, 0) == -1) {
+            perror("send");
+            exit(MINIONSENDERRNUM);
+          }
+          // Get UnixTimestamp
+          if (recv(minionSds[src], utsBuff, buffSize, 0) == -1) {
+            perror("recv");
+            exit(MINIONRECVERRNUM);
+          }
+          std::cout << utsBuff << ", ";
+
+          // Ask for RTT
+          if (send(minionSds[src], "RTT", 4, 0) == -1) {
+            perror("send");
+            exit(MINIONSENDERRNUM);
+          }
+          // Get RTT
+          if (recv(minionSds[src], rttBuff, buffSize, 0) == -1) {
+            perror("recv");
+            exit(MINIONRECVERRNUM);
+          }
+          std::cout << rttBuff << std::endl;
+
+          if (firstTest) {
+            putRttEntry(dbClient, tableName, instances[src]->first,
+                        instances[des]->first, resolveTBuff, handShakeTBuff,
+                        utsBuff, rttBuff);
+            firstTest = false;
+          } else {
+            putRttEntry(dbClient, tableName, instances[src]->first,
+                        instances[des]->first, utsBuff, rttBuff);
+          }
+        }
+        std::cout << std::endl;
       }
-      std::cout << std::endl;
     }
+
+    // Sleep 20min between each round
+    sleep(1200);
   }
 
   // Inform Minions test has ended
