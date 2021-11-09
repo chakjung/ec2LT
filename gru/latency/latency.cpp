@@ -102,7 +102,7 @@ void testLatency(
         continue;
       }
 
-      std::cout << instances[src]->first << " -> " << instances[des]
+      std::cout << instances[src]->first << " -> " << instances[des]->first
                 << std::endl;
 
       // Assign roles
