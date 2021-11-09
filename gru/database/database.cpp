@@ -119,10 +119,9 @@ void createDBTable(Aws::DynamoDB::DynamoDBClient &client,
 }
 
 void putRttEntry(Aws::DynamoDB::DynamoDBClient &client,
-                 const std::string &tableName, const Aws::string &src,
-                 const Aws::string &des, const const char *resolveT,
-                 const const char *handShakeT, const const char *uts,
-                 const const char *rtt) {
+                 const std::string &tableName, const Aws::String &src,
+                 const Aws::String &des, const char *resolveT,
+                 const char *handShakeT, const char *uts, const char *rtt) {
   Aws::DynamoDB::Model::PutItemRequest putReq;
   putReq.SetTableName(tableName);
 
@@ -167,9 +166,8 @@ void putRttEntry(Aws::DynamoDB::DynamoDBClient &client,
 }
 
 void putRttEntry(Aws::DynamoDB::DynamoDBClient &client,
-                 const std::string &tableName, const Aws::string &src,
-                 const Aws::string &des, const const char *uts,
-                 const const char *rtt) {
+                 const std::string &tableName, const Aws::String &src,
+                 const Aws::String &des, const char *uts, const char *rtt) {
   Aws::DynamoDB::Model::PutItemRequest putReq;
   putReq.SetTableName(tableName);
 
