@@ -42,3 +42,5 @@ const unsigned int UPDATEDBTABLEDELAY = 5;
 const unsigned int CONNECTMINIONDELAY = 15;
 // Communication buffer size (bytes)
 const unsigned short BSIZE = 255;
+// Number of trials per connection
+const unsigned char TRIALSPERCONNECTION = 10;

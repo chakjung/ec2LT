@@ -7,3 +7,6 @@ const int GRUSPORT = MINIONSPORT + 1;
 const unsigned short BSIZE = 255;
 // Wait Minion to come online delay (sec)
 const unsigned int CONNECTMINIONDELAY = 5;
+
+// Number of trials per connection
+const unsigned char TRIALSPERCONNECTION = 10;

@@ -12,7 +12,8 @@
 void testLatency(
     Aws::DynamoDB::DynamoDBClient &dbClient,
     std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> &instances,
-    const int &port, const int &buffSize, const int &delay) {
+    const int &port, const int &buffSize, const int &delay,
+    const int &trialsCount) {
 
   std::cout << "Starting latency test ...\n" << std::endl;
 
@@ -143,16 +144,50 @@ void testLatency(
         exit(MINIONSENDERRNUM);
       }
 
-      // Get results
+      // Get DNS resolution time
       if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
         perror("recv");
         exit(MINIONRECVERRNUM);
       }
-      if (strcmp(buffer, "result") != 0) {
-        fprintf(stderr, "Result unmatch\n");
-        exit(4321);
+      std::cout << "DNS resolution time: " << buffer << std::endl;
+
+      // Ask for TCP handshake time
+      if (send(minionSds[src], "TCP HANDSHAKE TIME", 19, 0) == -1) {
+        perror("send");
+        exit(MINIONSENDERRNUM);
       }
-      std::cout << "Got results\n" << std::endl;
+      // Get TCP handshake time
+      if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+        perror("recv");
+        exit(MINIONRECVERRNUM);
+      }
+      std::cout << "TCP  handshake time: " << buffer << std::endl;
+
+      for (unsigned char i = 0; i < trialsCount; ++i) {
+        // Ask for UnixTimestamp
+        if (send(minionSds[src], "UTS", 4, 0) == -1) {
+          perror("send");
+          exit(MINIONSENDERRNUM);
+        }
+        // Get UnixTimestamp
+        if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+          perror("recv");
+          exit(MINIONRECVERRNUM);
+        }
+        std::cout << buffer << ", ";
+
+        // Ask for RTT
+        if (send(minionSds[src], "RTT", 4, 0) == -1) {
+          perror("send");
+          exit(MINIONSENDERRNUM);
+        }
+        // Get RTT
+        if (recv(minionSds[src], buffer, buffSize, 0) == -1) {
+          perror("recv");
+          exit(MINIONRECVERRNUM);
+        }
+        std::cout << buffer << std::endl;
+      }
     }
   }
 
