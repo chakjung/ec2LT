@@ -273,6 +273,10 @@ int main() {
         exit(29);
       }
 
+      struct timespec wallTime;
+      struct timespec rttStart, rttStop;
+      char echoBuffer[BSIZE];
+
       for (unsigned char i = 0; i < TRIALSPERCONNECTION; ++i) {
         // Payload to buffer
         bufferUsed = snprintf(buffer, BSIZE, "%d", i);
