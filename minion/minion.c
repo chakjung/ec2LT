@@ -63,8 +63,13 @@ int main() {
   freeifaddrs(ifaddr);
 
   // Socket descriptor (IPv4, TCP, default)
-  int sd = socket(AF_INET, SOCK_STREAM, 0);
-  if (sd == -1) {
+  int gruInSd = socket(AF_INET, SOCK_STREAM, 0);
+  if (gruInSd == -1) {
+    perror("socket");
+    exit(3);
+  }
+  int minionInSd = socket(AF_INET, SOCK_STREAM, 0);
+  if (minionInSd == -1) {
     perror("socket");
     exit(3);
   }
@@ -72,14 +77,26 @@ int main() {
   // Specify Gru port
   saddrIn->sin_port = htons(GRUSPORT);
   // Bind socket to addr
-  if (bind(sd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
+  if (bind(gruInSd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
+    perror("bind");
+    exit(4);
+  }
+
+  // Specify Minion port
+  saddrIn->sin_port = htons(MINIONSPORT);
+  // Bind socket to addr
+  if (bind(minionInSd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
     perror("bind");
     exit(4);
   }
 
   // Mark socket as passive
   // Only allow 1 connection (0 backlog)
-  if (listen(sd, 0) == -1) {
+  if (listen(gruInSd, 0) == -1) {
+    perror("listen");
+    exit(5);
+  }
+  if (listen(minionInSd, 0) == -1) {
     perror("listen");
     exit(5);
   }
@@ -87,13 +104,13 @@ int main() {
   // Incoming Gru (Socket descriptor)
   struct sockaddr gru;
   socklen_t gruLen = sizeof(gru);
-  int gruSd = accept(sd, &gru, &gruLen);
+  int gruSd = accept(gruInSd, &gru, &gruLen);
   if (gruSd == -1) {
     perror("accept");
     exit(6);
   }
 
-  close(sd);
+  close(gruInSd);
 
   // Communication buffer
   char buffer[BSIZE];
@@ -186,38 +203,15 @@ int main() {
 
     } else if (strcmp(buffer, "DES") == 0) {
 
-      // Socket descriptor (IPv4, TCP, default)
-      sd = socket(AF_INET, SOCK_STREAM, 0);
-      if (sd == -1) {
-        perror("socket");
-        exit(16);
-      }
-
-      // Specify Minion port
-      saddrIn->sin_port = htons(MINIONSPORT);
-      // Bind socket to addr
-      if (bind(sd, (struct sockaddr *)saddrIn, saddrInLen) == -1) {
-        perror("bind");
-        exit(17);
-      }
-
-      // Mark socket as passive
-      // Only allow 1 connection (0 backlog)
-      if (listen(sd, 0) == -1) {
-        perror("listen");
-        exit(18);
-      }
-
       // Incoming src (Socket descriptor)
       struct sockaddr src;
       socklen_t srcLen = sizeof(src);
-      int srcSd = accept(sd, &src, &srcLen);
+      int srcSd = accept(minionInSd, &src, &srcLen);
       if (srcSd == -1) {
         perror("accept");
         exit(19);
       }
 
-      close(sd);
       close(srcSd);
 
     } else if (strcmp(buffer, "BYE") == 0) {
@@ -228,6 +222,7 @@ int main() {
     }
   }
 
+  close(minionInSd);
   close(gruSd);
 
   exit(0);
