@@ -7,9 +7,9 @@ void createDBTable(Aws::DynamoDB::DynamoDBClient &, const std::string &,
                    const unsigned int &);
 
 void putRttEntry(Aws::DynamoDB::DynamoDBClient &, const std::string &,
-                 const Aws::string &, const Aws::string &, const const char *,
-                 const const char *, const const char *, const const char *);
+                 const Aws::String &, const Aws::string &, const char *,
+                 const char *, const char *, const char *);
 
 void putRttEntry(Aws::DynamoDB::DynamoDBClient &, const std::string &,
-                 const Aws::string &, const Aws::string &, const const char *,
-                 const const char *);
+                 const Aws::String &, const Aws::string &, const char *,
+                 const char *);
