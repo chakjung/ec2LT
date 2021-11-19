@@ -15,7 +15,7 @@ void describeInstances(std::vector<Region> &regions) {
 
   for (Region &region : regions) {
     for (AZ &az : region.AZs) {
-      std::cout << "AZ       ID: " << az.Id << std::endl;
+      std::cout << "AZ       ID: " << az.AZId << std::endl;
       std::cout << "EC2      ID: " << az.Instance.GetInstanceId() << std::endl;
       std::cout << "Public  DNS: " << az.Instance.GetPublicDnsName()
                 << std::endl;

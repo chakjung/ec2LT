@@ -154,10 +154,10 @@ int main() {
   createDBTable(DBTABLENAME, DBSTATTABLENAME, UPDATEDBTABLEDELAY);
 
   // Gather all AZs
-  std::vector<AZ &> AZs;
+  std::vector<AZ *> AZs;
   for (Region &region : regions) {
     for (AZ &az : region.AZs) {
-      AZs.push_back(az);
+      AZs.push_back(&az);
     }
   }
   std::random_shuffle(AZs.begin(), AZs.end());

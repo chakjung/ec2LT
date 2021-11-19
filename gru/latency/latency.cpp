@@ -12,7 +12,7 @@
 
 // Test latency between all AZs
 void testLatency(const std::string &tableName, const std::string &statTableName,
-                 std::vector<AZ &> &AZs, const int &port, const int &buffSize,
+                 std::vector<AZ *> &AZs, const int &port, const int &buffSize,
                  const int &delay, const int &trialsCount) {
 
   std::cout << "Starting latency test ..." << std::endl;
@@ -29,12 +29,12 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
   // Minion socket descriptors
   std::vector<int> minionSds;
 
-  for (AZ &az : AZs) {
+  for (AZ *&az : AZs) {
     // Result of getting Minion connection info
     struct addrinfo *result;
 
     // Get Minion connection info
-    int getaddrinfoStat = getaddrinfo(az.Instance.GetPublicDnsName().c_str(),
+    int getaddrinfoStat = getaddrinfo(az->Instance.GetPublicDnsName().c_str(),
                                       portStr, &hints, &result);
     if (getaddrinfoStat != 0) {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(getaddrinfoStat));
@@ -56,11 +56,11 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
 
     // Connect to Minion
     while (connect(sd, result->ai_addr, result->ai_addrlen) == -1) {
-      std::cout << "Waiting for " << az.Instance.GetInstanceId()
+      std::cout << "Waiting for " << az->Instance.GetInstanceId()
                 << " to come online ..." << std::endl;
       sleep(delay);
     }
-    std::cout << "Connected to " << az.Instance.GetInstanceId() << "\n"
+    std::cout << "Connected to " << az->Instance.GetInstanceId() << "\n"
               << std::endl;
 
     minionSds.push_back(sd);
@@ -116,7 +116,7 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
           continue;
         }
 
-        std::cout << AZs[src].AZId << " -> " << AZs[des].AZId << std::endl;
+        std::cout << AZs[src]->AZId << " -> " << AZs[des]->AZId << std::endl;
         firstTest = true;
 
         // Assign roles
@@ -149,8 +149,8 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
         std::cout << "Roles assigned" << std::endl;
 
         // Send DES PublicDnsName to SRC
-        if (send(minionSds[src], AZs[des].Instance.GetPublicDnsName().c_str(),
-                 AZs[des].Instance.GetPublicDnsName().length() + 1, 0) == -1) {
+        if (send(minionSds[src], AZs[des]->Instance.GetPublicDnsName().c_str(),
+                 AZs[des]->Instance.GetPublicDnsName().length() + 1, 0) == -1) {
           perror("send");
           exit(MINIONSENDERRNUM);
         }
@@ -201,11 +201,11 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
           std::cout << rttBuff << std::endl;
 
           if (firstTest) {
-            putDBEntry(DBClient, tableName, AZs[src].AZId, AZs[des].AZId,
+            putDBEntry(DBClient, tableName, AZs[src]->AZId, AZs[des]->AZId,
                        resolveTBuff, handShakeTBuff, utsBuff, rttBuff);
             firstTest = false;
           } else {
-            putDBEntry(DBClient, tableName, AZs[src].AZId, AZs[des].AZId,
+            putDBEntry(DBClient, tableName, AZs[src]->AZId, AZs[des]->AZId,
                        utsBuff, rttBuff);
           }
         }

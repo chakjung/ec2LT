@@ -28,7 +28,7 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
 
       if (!desOutcome.IsSuccess()) {
         std::cout << "Failed to describe EC2 instance "
-                  << instance.second.GetInstanceId() << "\n"
+                  << az.Instance.GetInstanceId() << "\n"
                   << desOutcome.GetError().GetMessage() << std::endl;
         exit(UPDATEINSTANCESERRNUM);
       }

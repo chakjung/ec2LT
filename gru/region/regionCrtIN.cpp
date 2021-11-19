@@ -1,5 +1,7 @@
 #include "region.h"
 
+#include <aws/ec2/model/DescribeAvailabilityZonesRequest.h> // DescribeAvailabilityZonesRequest
+
 #include "../errorCode.h" // DESCRIBEAZSERRNUM
 // CREATEINSTANCESERRNUM, CREATEINSTANCESWRONGAMOUNTERRNUM
 

@@ -13,7 +13,7 @@ add_subdirectory(latency)
 
 add_executable(${PROJECT_NAME} "./gru.cpp")
 
-add_compile_options(-Wall -Wextra -pedantic -Werror)
+add_compile_options(-Wall -Wextra -pedantic -Werror -O3)
 
 target_link_libraries(${PROJECT_NAME}
                       ${AWSSDK_LINK_LIBRARIES}

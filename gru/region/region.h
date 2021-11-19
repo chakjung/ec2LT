@@ -1,5 +1,7 @@
 #pragma once
 
+#include <aws/ec2/EC2Client.h> // EC2Client
+
 #include <aws/ec2/model/DescribeImagesRequest.h> // DescribeImagesRequest
 
 #include <aws/ec2/model/CreateSecurityGroupRequest.h> // CreateSecurityGroupRequest
