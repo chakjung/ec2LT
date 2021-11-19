@@ -170,7 +170,7 @@ void createStatTable(Aws::DynamoDB::DynamoDBClient &client,
   srcKSE.WithAttributeName("SRC").WithKeyType(
       Aws::DynamoDB::Model::KeyType::HASH);
   dstKSE.WithAttributeName("DST").WithKeyType(
-      Aws::DynamoDB::Model::KeyType::HASH);
+      Aws::DynamoDB::Model::KeyType::RANGE);
 
   // Set primary key
   crtReq.AddKeySchema(srcKSE);
