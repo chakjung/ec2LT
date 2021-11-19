@@ -24,8 +24,8 @@ const std::vector<std::pair<std::string, std::string>> OSFILTERS =
 const char SECURITYGROUPNAME[] = "EC2LT";
 const char SECURITYGROUPDESCRIPTION[] = "SG for EC2LT";
 
-const Aws::String GRUPUBLICIP = "3.17.62.197/32";
-const Aws::String GRUPRIVATEIP = "172.31.33.96/32";
+const Aws::String GRUPUBLICIP = "/32";
+const Aws::String GRUPRIVATEIP = "/32";
 
 const int MINIONSPORT = 37261;
 const int GRUSPORT = MINIONSPORT + 1;
@@ -35,6 +35,7 @@ const unsigned int UPDATEINSTANCEDELAY = 5;
 
 // DB table name
 const std::string DBTABLENAME("EC2LT");
+const std::string DBSTATTABLENAME("EC2LTSTAT");
 // Update DB table loop delay (sec)
 const unsigned int UPDATEDBTABLEDELAY = 5;
 

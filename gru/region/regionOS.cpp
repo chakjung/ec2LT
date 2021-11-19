@@ -4,9 +4,14 @@
 
 // Get OSId via DescribeImagesRequest
 void Region::QueryOSId(const Aws::EC2::Model::DescribeImagesRequest &desReq) {
+  // Regional client
+  Aws::Client::ClientConfiguration clientConfig;
+  clientConfig.region = RegionName;
+  Aws::EC2::EC2Client client(clientConfig);
+
   // Get OS Descriptions
-  Aws::EC2::Model::DescribeImagesOutcome desOutcome =
-      RegionalClient.DescribeImages(desReq);
+  const Aws::EC2::Model::DescribeImagesOutcome &desOutcome =
+      client.DescribeImages(desReq);
 
   if (!desOutcome.IsSuccess()) {
     std::cout << "Failed to get OSId\n"

@@ -7,10 +7,15 @@
 void Region::CreateInstances(
     Aws::EC2::Model::RunInstancesRequest RegionINRunReq) {
 
+  // Regional client
+  Aws::Client::ClientConfiguration clientConfig;
+  clientConfig.region = RegionName;
+  Aws::EC2::EC2Client client(clientConfig);
+
   // Get all AZs
   Aws::EC2::Model::DescribeAvailabilityZonesRequest desAZsReq;
-  Aws::EC2::Model::DescribeAvailabilityZonesOutcome desAZsOutcome =
-      RegionalClient.DescribeAvailabilityZones(desAZsReq);
+  const Aws::EC2::Model::DescribeAvailabilityZonesOutcome &desAZsOutcome =
+      client.DescribeAvailabilityZones(desAZsReq);
 
   if (!desAZsOutcome.IsSuccess()) {
     std::cout << "Failed to describe AZs\n"
@@ -42,8 +47,8 @@ void Region::CreateInstances(
     INRunReq.SetPlacement(placement);
 
     // Create instance
-    Aws::EC2::Model::RunInstancesOutcome INRunOutcome =
-        RegionalClient.RunInstances(INRunReq);
+    const Aws::EC2::Model::RunInstancesOutcome &INRunOutcome =
+        client.RunInstances(INRunReq);
 
     if (!INRunOutcome.IsSuccess()) {
       std::cout << "Failed to create EC2 instance in " << az.GetZoneName()
@@ -63,8 +68,8 @@ void Region::CreateInstances(
       exit(CREATEINSTANCESWRONGAMOUNTERRNUM);
     }
 
-    Instances.push_back(std::pair<Aws::String, Aws::EC2::Model::Instance>(
-        az.GetZoneId(), instances[0]));
+    AZs.push_back(AZ{az.GetZoneId(), instances[0]});
+
     std::cout << "Instance launched" << std::endl;
   }
 }

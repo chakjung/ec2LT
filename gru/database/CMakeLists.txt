@@ -1,1 +1,1 @@
-add_library(database database.cpp)
+add_library(database databaseCrt.cpp database.cpp)

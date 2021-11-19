@@ -2,8 +2,8 @@
 
 #include "../region/region.h" // Region
 
-// DescribeRegions available for this client
-void describeRegions(Aws::EC2::EC2Client &, std::vector<Region> &);
+// DescribeRegions available for this account
+void describeRegions(std::vector<Region> &);
 
 // UpdateInstances within all regions
 // Blocked until instance state are satisfied

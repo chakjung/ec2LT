@@ -5,6 +5,7 @@ project(gru)
 
 find_package(AWSSDK REQUIRED COMPONENTS ec2 dynamodb)
 
+add_subdirectory(availabilityZone)
 add_subdirectory(region)
 add_subdirectory(subroutines)
 add_subdirectory(database)
@@ -19,4 +20,5 @@ target_link_libraries(${PROJECT_NAME}
                       latency
                       database
                       subroutines
-                      region)
+                      region
+                      availabilityZone)

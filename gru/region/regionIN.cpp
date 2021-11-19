@@ -8,26 +8,28 @@
 // Blocked until instance state are satisfied
 void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
                              const unsigned int &delay) {
-  std::cout << RegionName << "\n" << std::flush;
-  // Foreach instance in instances
-  for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
-       Instances) {
-    Aws::EC2::Model::DescribeInstancesRequest desReq;
-    desReq.AddInstanceIds(instance.second.GetInstanceId());
+  std::cout << RegionName << std::endl;
 
-    std::cout << instance.second.GetInstanceId() << "\n" << std::flush;
+  // Regional client
+  Aws::Client::ClientConfiguration clientConfig;
+  clientConfig.region = RegionName;
+  Aws::EC2::EC2Client client(clientConfig);
+
+  for (AZ &az : AZs) {
+    Aws::EC2::Model::DescribeInstancesRequest desReq;
+    desReq.AddInstanceIds(az.Instance.GetInstanceId());
+
+    std::cout << az.Instance.GetInstanceId() << std::endl;
 
     // Keep requesting until instance state == state
-    bool match = false;
-    while (!match) {
-      Aws::EC2::Model::DescribeInstancesOutcome desOutcome =
-          RegionalClient.DescribeInstances(desReq);
+    while (true) {
+      const Aws::EC2::Model::DescribeInstancesOutcome &desOutcome =
+          client.DescribeInstances(desReq);
 
       if (!desOutcome.IsSuccess()) {
         std::cout << "Failed to describe EC2 instance "
                   << instance.second.GetInstanceId() << "\n"
-                  << desOutcome.GetError().GetMessage() << "\n"
-                  << std::flush;
+                  << desOutcome.GetError().GetMessage() << std::endl;
         exit(UPDATEINSTANCESERRNUM);
       }
 
@@ -36,9 +38,8 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
 
       if (describedInstances.size() != 1) {
         std::cout << "Incorrect amount of EC2 instances described for "
-                  << instance.second.GetInstanceId() << "\n"
-                  << desOutcome.GetError().GetMessage() << "\n"
-                  << std::flush;
+                  << az.Instance.GetInstanceId() << "\n"
+                  << desOutcome.GetError().GetMessage() << std::endl;
         exit(UPDATEINSTANCESWRONGAMOUNTERRNUM);
       }
 
@@ -48,28 +49,32 @@ void Region::UpdateInstances(const Aws::EC2::Model::InstanceStateName &state,
         continue;
       }
 
-      match = true;
-      instance.second = describedInstances[0];
+      az.Instance = describedInstances[0];
+      break;
     }
   }
 }
 
 // TerminateInstances within this region
 void Region::TerminateInstances() {
-  if (Instances.empty()) {
+  // No instances
+  if (AZs.empty()) {
     return;
   }
 
+  // Regional client
+  Aws::Client::ClientConfiguration clientConfig;
+  clientConfig.region = RegionName;
+  Aws::EC2::EC2Client client(clientConfig);
+
   Aws::EC2::Model::TerminateInstancesRequest termReq;
 
-  // Foreach instance in instances
-  for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
-       Instances) {
-    termReq.AddInstanceIds(instance.second.GetInstanceId());
+  for (AZ &az : AZs) {
+    termReq.AddInstanceIds(az.Instance.GetInstanceId());
   }
 
-  Aws::EC2::Model::TerminateInstancesOutcome termOutcome =
-      RegionalClient.TerminateInstances(termReq);
+  const Aws::EC2::Model::TerminateInstancesOutcome &termOutcome =
+      client.TerminateInstances(termReq);
 
   if (!termOutcome.IsSuccess()) {
     std::cout << "Failed to terminate EC2 instance at " << RegionName << "\n"

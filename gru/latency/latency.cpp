@@ -10,14 +10,13 @@
 
 #include "../errorCode.h" // MINION*ERRNUM
 
-// Test latency between all instances
-void testLatency(
-    Aws::DynamoDB::DynamoDBClient &dbClient, const std::string &tableName,
-    std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> &instances,
-    const int &port, const int &buffSize, const int &delay,
-    const int &trialsCount) {
+// Test latency between all AZs
+void testLatency(const std::string &tableName, const std::string &statTableName,
+                 std::vector<AZ &> &AZs, const int &port, const int &buffSize,
+                 const int &delay, const int &trialsCount) {
 
-  std::cout << "Starting latency test ...\n" << std::endl;
+  std::cout << "Starting latency test ..." << std::endl;
+  std::cout << "AZ count: " << AZs.size() << "\n" << std::endl;
 
   // Hints of Minion connection
   struct addrinfo hints;
@@ -30,14 +29,13 @@ void testLatency(
   // Minion socket descriptors
   std::vector<int> minionSds;
 
-  for (std::pair<Aws::String, Aws::EC2::Model::Instance> *&instance :
-       instances) {
+  for (AZ &az : AZs) {
     // Result of getting Minion connection info
     struct addrinfo *result;
 
     // Get Minion connection info
-    int getaddrinfoStat = getaddrinfo(
-        instance->second.GetPublicDnsName().c_str(), portStr, &hints, &result);
+    int getaddrinfoStat = getaddrinfo(az.Instance.GetPublicDnsName().c_str(),
+                                      portStr, &hints, &result);
     if (getaddrinfoStat != 0) {
       fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(getaddrinfoStat));
       exit(MINIONCONNECTIONERRNUM);
@@ -58,13 +56,12 @@ void testLatency(
 
     // Connect to Minion
     while (connect(sd, result->ai_addr, result->ai_addrlen) == -1) {
-      std::cout << "Waiting for " << instance->second.GetInstanceId()
-                << " to come online ...\n"
-                << std::flush;
+      std::cout << "Waiting for " << az.Instance.GetInstanceId()
+                << " to come online ..." << std::endl;
       sleep(delay);
     }
-    std::cout << "Connected to " << instance->second.GetInstanceId() << "\n\n"
-              << std::flush;
+    std::cout << "Connected to " << az.Instance.GetInstanceId() << "\n"
+              << std::endl;
 
     minionSds.push_back(sd);
 
@@ -106,17 +103,20 @@ void testLatency(
 
   std::cout << "All Minions agree to proceed\n" << std::endl;
 
-  // Test 20 times
-  for (unsigned int count = 0; count < 20; ++count) {
+  // DataBase Client
+  Aws::Client::ClientConfiguration clientConfig;
+  Aws::DynamoDB::DynamoDBClient DBClient(clientConfig);
+
+  // Test 1 times
+  for (unsigned int count = 0; count < 1; ++count) {
     // Test all possible Minion combinations
-    for (unsigned int src = 0; src < instances.size(); ++src) {
-      for (unsigned int des = 0; des < instances.size(); ++des) {
+    for (unsigned int src = 0; src < AZs.size(); ++src) {
+      for (unsigned int des = 0; des < AZs.size(); ++des) {
         if (src == des) {
           continue;
         }
 
-        std::cout << instances[src]->first << " -> " << instances[des]->first
-                  << std::endl;
+        std::cout << AZs[src].AZId << " -> " << AZs[des].AZId << std::endl;
         firstTest = true;
 
         // Assign roles
@@ -149,10 +149,8 @@ void testLatency(
         std::cout << "Roles assigned" << std::endl;
 
         // Send DES PublicDnsName to SRC
-        if (send(minionSds[src],
-                 instances[des]->second.GetPublicDnsName().c_str(),
-                 instances[des]->second.GetPublicDnsName().length() + 1,
-                 0) == -1) {
+        if (send(minionSds[src], AZs[des].Instance.GetPublicDnsName().c_str(),
+                 AZs[des].Instance.GetPublicDnsName().length() + 1, 0) == -1) {
           perror("send");
           exit(MINIONSENDERRNUM);
         }
@@ -203,21 +201,17 @@ void testLatency(
           std::cout << rttBuff << std::endl;
 
           if (firstTest) {
-            putRttEntry(dbClient, tableName, instances[src]->first,
-                        instances[des]->first, resolveTBuff, handShakeTBuff,
-                        utsBuff, rttBuff);
+            putDBEntry(DBClient, tableName, AZs[src].AZId, AZs[des].AZId,
+                       resolveTBuff, handShakeTBuff, utsBuff, rttBuff);
             firstTest = false;
           } else {
-            putRttEntry(dbClient, tableName, instances[src]->first,
-                        instances[des]->first, utsBuff, rttBuff);
+            putDBEntry(DBClient, tableName, AZs[src].AZId, AZs[des].AZId,
+                       utsBuff, rttBuff);
           }
         }
         std::cout << std::endl;
       }
     }
-
-    // Sleep 20min between each round
-    sleep(1200);
   }
 
   // Inform Minions test has ended
@@ -233,9 +227,9 @@ void testLatency(
       perror("recv");
       exit(MINIONRECVERRNUM);
     }
-    // Minion not reply "BYE"
+    // Minion didn't reply "BYE"
     if (strcmp(buffer, "BYE") != 0) {
-      fprintf(stderr, "Minion not BYE\n");
+      fprintf(stderr, "Minion didn't reply BYE\n");
       exit(MINIONNOTBYEERRNUM);
     }
   }

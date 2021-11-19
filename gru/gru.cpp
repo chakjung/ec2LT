@@ -31,24 +31,9 @@ int main() {
   Aws::EC2::Model::Tag tag;
   tag.WithKey(TAGKEY).SetValue("");
 
-  // Default Gru client
-  Aws::EC2::EC2Client gruClient;
-
   // All regions
   std::vector<Region> regions;
-  describeRegions(gruClient, regions);
-
-  // Limiter
-  /**
-  std::vector<Region> temp;
-  for (Region &region : regions) {
-    if (region.RegionName == "us-east-1" || region.RegionName == "eu-west-2" ||
-        region.RegionName == "ap-northeast-1") {
-      temp.push_back(region);
-    }
-  }
-  regions = temp;
-  */
+  describeRegions(regions);
 
   // OSId describe request
   Aws::EC2::Model::DescribeImagesRequest OSIdDesReq;
@@ -132,12 +117,12 @@ int main() {
   }
 
   // Sleep 3hr for Chrony calibration
-  sleep(10800);
+  // sleep(10800);
 
-  std::cout << "Updating instance informations...\n" << std::flush;
+  std::cout << "Updating instance informations..." << std::endl;
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,
                   UPDATEINSTANCEDELAY);
-  std::cout << "Instance informations updated\n\n" << std::flush;
+  std::cout << "Instance informations updated\n" << std::endl;
   describeInstances(regions);
 
   // Config SG request
@@ -149,40 +134,35 @@ int main() {
   addSGRule(SGConfigReq, GRUPRIVATEIP, "tcp", GRUSPORT, GRUSPORT);
 
   for (Region &region : regions) {
-    for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
-         region.Instances) {
-
+    for (AZ &az : region.AZs) {
       // Add Minion's ips
-      addSGRule(SGConfigReq, instance.second.GetPublicIpAddress() + "/32",
-                "tcp", MINIONSPORT, GRUSPORT);
-      addSGRule(SGConfigReq, instance.second.GetPrivateIpAddress() + "/32",
-                "tcp", MINIONSPORT, GRUSPORT);
+      addSGRule(SGConfigReq, az.Instance.GetPublicIpAddress() + "/32", "tcp",
+                MINIONSPORT, GRUSPORT);
+      addSGRule(SGConfigReq, az.Instance.GetPrivateIpAddress() + "/32", "tcp",
+                MINIONSPORT, GRUSPORT);
     }
   }
 
   std::cout << "Configuring SG foreach region..." << std::endl;
   for (Region &region : regions) {
-    std::cout << region.RegionName << "\n" << std::flush;
+    std::cout << region.RegionName << std::endl;
     region.ConfigSG(SGConfigReq);
   }
   std::cout << "All SGs configured\n" << std::endl;
 
   // EC2 Latency Test - proj specific start
-  Aws::Client::ClientConfiguration DBClientConfig;
-  Aws::DynamoDB::DynamoDBClient DBClient(DBClientConfig);
-  createDBTable(DBClient, DBTABLENAME, UPDATEDBTABLEDELAY);
+  createDBTable(DBTABLENAME, DBSTATTABLENAME, UPDATEDBTABLEDELAY);
 
-  // Gather all instances
-  std::vector<std::pair<Aws::String, Aws::EC2::Model::Instance> *> instances;
+  // Gather all AZs
+  std::vector<AZ &> AZs;
   for (Region &region : regions) {
-    for (std::pair<Aws::String, Aws::EC2::Model::Instance> &instance :
-         region.Instances) {
-      instances.push_back(&instance);
+    for (AZ &az : region.AZs) {
+      AZs.push_back(az);
     }
   }
-  std::random_shuffle(instances.begin(), instances.end());
+  std::random_shuffle(AZs.begin(), AZs.end());
 
-  testLatency(DBClient, DBTABLENAME, instances, GRUSPORT, BSIZE,
+  testLatency(DBTABLENAME, DBSTATTABLENAME, AZs, GRUSPORT, BSIZE,
               CONNECTMINIONDELAY, TRIALSPERCONNECTION);
   // EC2 Latency Test - proj specific end
 
