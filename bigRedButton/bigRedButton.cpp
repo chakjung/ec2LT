@@ -32,7 +32,7 @@ int main() {
 
   // DescribeRegions available for defaultClient
   Aws::EC2::Model::DescribeRegionsRequest desRegionsReq;
-  Aws::EC2::Model::DescribeRegionsOutcome desRegionsOutcome =
+  const Aws::EC2::Model::DescribeRegionsOutcome &desRegionsOutcome =
       defaultClient.DescribeRegions(desRegionsReq);
 
   if (!desRegionsOutcome.IsSuccess()) {
@@ -41,8 +41,8 @@ int main() {
     exit(DESCRIBEREGIONSERRNUM);
   }
 
-  // Foreach region
-  // Initiate instance termination sequence
+  // Foreach region initiate instance termination
+  std::cout << "Starting first sweep..." << std::endl;
   for (const Aws::EC2::Model::Region &region :
        desRegionsOutcome.GetResult().GetRegions()) {
     // Config for regional client
@@ -52,7 +52,7 @@ int main() {
 
     // DescribeInstances
     Aws::EC2::Model::DescribeInstancesRequest desINReq;
-    Aws::EC2::Model::DescribeInstancesOutcome desINOutcome =
+    const Aws::EC2::Model::DescribeInstancesOutcome &desINOutcome =
         regionalClient.DescribeInstances(desINReq);
 
     if (!desINOutcome.IsSuccess()) {
@@ -86,7 +86,7 @@ int main() {
     }
 
     if (instanceExist) {
-      Aws::EC2::Model::TerminateInstancesOutcome termINOutcome =
+      const Aws::EC2::Model::TerminateInstancesOutcome &termINOutcome =
           regionalClient.TerminateInstances(termINReq);
       if (!termINOutcome.IsSuccess()) {
         std::cout << "Failed to terminate EC2 instance at "
@@ -96,6 +96,7 @@ int main() {
       }
     }
   }
+  std::cout << "First sweep ended\n" << std::endl;
 
   // Foreach region
   for (const Aws::EC2::Model::Region &region :
@@ -114,7 +115,7 @@ int main() {
 
       // DescribeInstances
       Aws::EC2::Model::DescribeInstancesRequest desINReq;
-      Aws::EC2::Model::DescribeInstancesOutcome desINOutcome =
+      const Aws::EC2::Model::DescribeInstancesOutcome &desINOutcome =
           regionalClient.DescribeInstances(desINReq);
 
       if (!desINOutcome.IsSuccess()) {
@@ -149,7 +150,7 @@ int main() {
       if (terminationComplete) {
         break;
       } else {
-        Aws::EC2::Model::TerminateInstancesOutcome termINOutcome =
+        const Aws::EC2::Model::TerminateInstancesOutcome &termINOutcome =
             regionalClient.TerminateInstances(termINReq);
         if (!termINOutcome.IsSuccess()) {
           std::cout << "Failed to terminate EC2 instance at "
@@ -167,7 +168,7 @@ int main() {
 
     // DescribeSGs
     Aws::EC2::Model::DescribeSecurityGroupsRequest desSGReq;
-    Aws::EC2::Model::DescribeSecurityGroupsOutcome desSGOutcome =
+    const Aws::EC2::Model::DescribeSecurityGroupsOutcome &desSGOutcome =
         regionalClient.DescribeSecurityGroups(desSGReq);
     if (!desSGOutcome.IsSuccess()) {
       std::cout << "Failed to describe SGs\n"
@@ -192,7 +193,7 @@ int main() {
       delSGReq.SetGroupId(sg.GetGroupId());
 
       // Delete SG
-      Aws::EC2::Model::DeleteSecurityGroupOutcome delSGOutcome =
+      const Aws::EC2::Model::DeleteSecurityGroupOutcome &delSGOutcome =
           regionalClient.DeleteSecurityGroup(delSGReq);
 
       if (!delSGOutcome.IsSuccess()) {
