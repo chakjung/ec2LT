@@ -200,16 +200,26 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
           }
           std::cout << rttBuff << std::endl;
 
+          Entry &DSTEntry = AZs[src]->DST[AZs[des]->AZId];
           if (firstTest) {
             putDBEntry(DBClient, tableName, AZs[src]->AZId, AZs[des]->AZId,
                        resolveTBuff, handShakeTBuff, utsBuff, rttBuff);
+
+            DSTEntry.AddRES(resolveTBuff);
+            DSTEntry.AddHDS(handShakeTBuff);
+            DSTEntry.AddRTT(rttBuff);
+
             firstTest = false;
           } else {
             putDBEntry(DBClient, tableName, AZs[src]->AZId, AZs[des]->AZId,
                        utsBuff, rttBuff);
+            DSTEntry.AddRTT(rttBuff);
           }
         }
         std::cout << std::endl;
+
+        putStatEntry(DBClient, statTableName, AZs[src]->AZId, AZs[des]->AZId,
+                     AZs[src]->DST[AZs[des]->AZId]);
       }
     }
   }

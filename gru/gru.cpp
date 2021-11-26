@@ -162,6 +162,8 @@ int main() {
   }
   std::random_shuffle(AZs.begin(), AZs.end());
 
+  readDBTable(DBTABLENAME, AZs);
+
   testLatency(DBTABLENAME, DBSTATTABLENAME, AZs, GRUSPORT, BSIZE,
               CONNECTMINIONDELAY, TRIALSPERCONNECTION);
   // EC2 Latency Test - proj specific end
