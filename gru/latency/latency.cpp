@@ -107,8 +107,8 @@ void testLatency(const std::string &tableName, const std::string &statTableName,
   Aws::Client::ClientConfiguration clientConfig;
   Aws::DynamoDB::DynamoDBClient DBClient(clientConfig);
 
-  // Test 1 times
-  for (unsigned int count = 0; count < 1; ++count) {
+  // Test 20 times
+  for (unsigned int count = 0; count < 20; ++count) {
     // Test all possible Minion combinations
     for (unsigned int src = 0; src < AZs.size(); ++src) {
       for (unsigned int des = 0; des < AZs.size(); ++des) {

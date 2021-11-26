@@ -117,7 +117,7 @@ int main() {
   }
 
   // Sleep 3hr for Chrony calibration
-  // sleep(10800);
+  sleep(10800);
 
   std::cout << "Updating instance informations..." << std::endl;
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,
