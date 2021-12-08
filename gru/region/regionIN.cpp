@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: regionIN.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Manage regional instances
+ */
+
 #include "region.h"
 
 #include "../errorCode.h"

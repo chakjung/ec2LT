@@ -1,9 +1,20 @@
+/**
+ * EC2 network latency project
+ *
+ * File: statPut.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Put statistic result
+ */
+
 #include "database.h"
 
 #include <aws/dynamodb/model/PutItemRequest.h> // PutItemRequest
 
 #include "../errorCode.h" // PUTSTATENTRYERRNUM
 
+// Put statistic entry to DynamoDB
 void putStatEntry(Aws::DynamoDB::DynamoDBClient &client,
                   const std::string &tableName, const Aws::String &src,
                   const Aws::String &des, Entry &entry) {

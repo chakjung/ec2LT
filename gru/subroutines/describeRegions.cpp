@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: describeRegions.cpp
+ *
+ * Author: Jung Chak
+ *
+ * DescribeRegions available
+ */
+
 #include "subroutines.h"
 
 #include <aws/ec2/model/DescribeRegionsRequest.h> // DescribeRegionsRequest

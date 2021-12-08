@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: availabilityZone.h
+ *
+ * Author: Jung Chak
+ *
+ * AZ
+ */
+
 #pragma once
 
 #include <map>

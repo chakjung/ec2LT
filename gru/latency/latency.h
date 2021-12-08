@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: latency.h
+ *
+ * Author: Jung Chak
+ *
+ * Test latency
+ */
+
 #pragma once
 
 #include "../availabilityZone/availabilityZone.h" // AZ

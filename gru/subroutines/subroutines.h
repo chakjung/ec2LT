@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: subroutines.h
+ *
+ * Author: Jung Chak
+ *
+ * Gru's Subroutines
+ */
+
 #pragma once
 
 #include "../region/region.h" // Region

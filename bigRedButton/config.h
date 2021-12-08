@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: config.h
+ *
+ * Author: Jung Chak
+ *
+ * BigRedButton configuration
+ */
+
 #pragma once
 
 // Whitelisted from termination

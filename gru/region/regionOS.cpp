@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: regionOS.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Query regional OS
+ */
+
 #include "region.h"
 
 #include "../errorCode.h" // QUERYOSIDERRNUM

@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: minion.c
+ *
+ * Author: Jung Chak
+ *
+ * Minion task~
+ */
+
 #include <ifaddrs.h> // getifaddrs
 #include <net/if.h>  // IFF_*
 

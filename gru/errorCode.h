@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: errorCode.h
+ *
+ * Author: Jung Chak
+ *
+ * Error codes
+ */
+
 #pragma once
 
 const int QUERYOSIDERRNUM = 1;

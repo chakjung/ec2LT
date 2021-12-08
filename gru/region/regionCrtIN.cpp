@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: regionCrtIN.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Create regional instances
+ */
+
 #include "region.h"
 
 #include <aws/ec2/model/DescribeAvailabilityZonesRequest.h> // DescribeAvailabilityZonesRequest

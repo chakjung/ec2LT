@@ -1,9 +1,20 @@
+/**
+ * EC2 network latency project
+ *
+ * File: databaseRd.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Read & Cache prior test results
+ */
+
 #include "database.h"
 
 #include <aws/dynamodb/model/QueryRequest.h> // QueryRequest
 
 #include "../errorCode.h" // QUERYTABLEERRNUM
 
+// Read & Cache prior DB entries
 void readDBTable(const std::string &tableName, std::vector<AZ *> &AZs) {
   // DataBase Client
   Aws::Client::ClientConfiguration clientConfig;

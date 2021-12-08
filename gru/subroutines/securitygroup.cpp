@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: securitygroup.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Configure SGConfigReq
+ */
+
 #include "subroutines.h"
 
 // Add rule to Security Group

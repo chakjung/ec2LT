@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: databaseCrt.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Create DynamoDB tables
+ */
+
 #include "database.h"
 
 #include <aws/dynamodb/model/ListTablesRequest.h> // ListTablesRequest
@@ -13,13 +23,15 @@
 #include "../errorCode.h"
 // LISTTABLESERRNUM, CREATETABLEERRNUM, DESCRIBETABLEERRNUM
 
+// Create table for test entries
 void createTable(Aws::DynamoDB::DynamoDBClient &, const std::string &,
                  const unsigned int &);
 
+// Create table for statistic entries
 void createStatTable(Aws::DynamoDB::DynamoDBClient &, const std::string &,
                      const unsigned int &);
 
-// Create DB table if not exists
+// Create both DB table if not exists
 void createDBTable(const std::string &tableName,
                    const std::string &statTableName,
                    const unsigned int &delay) {
@@ -75,6 +87,7 @@ void createDBTable(const std::string &tableName,
   }
 }
 
+// Create table for test entries
 void createTable(Aws::DynamoDB::DynamoDBClient &client,
                  const std::string &tableName, const unsigned int &delay) {
 
@@ -150,6 +163,7 @@ void createTable(Aws::DynamoDB::DynamoDBClient &client,
   }
 }
 
+// Create table for statistic entries
 void createStatTable(Aws::DynamoDB::DynamoDBClient &client,
                      const std::string &statTableName,
                      const unsigned int &delay) {

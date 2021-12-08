@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: instances.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Manage instances within all regions
+ */
+
 #include "subroutines.h"
 
 // UpdateInstances within all regions

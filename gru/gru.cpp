@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: gru.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Gru task~
+ */
+
 #include <algorithm> // random_shuffle()
 
 #include <aws/core/Aws.h> // InitAPI(), ShutdownAPI()

@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: bigRedButton.cpp
+ *
+ * Author: Jung Chak
+ *
+ * BigRedButton
+ */
+
 #include <aws/core/Aws.h> // InitAPI(), ShutdownAPI()
 
 #include <aws/ec2/EC2Client.h> // EC2Client

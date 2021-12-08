@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: region.h
+ *
+ * Author: Jung Chak
+ *
+ * Region
+ */
+
 #pragma once
 
 #include <aws/ec2/EC2Client.h> // EC2Client

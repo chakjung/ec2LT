@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: latency.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Test latency
+ */
+
 #include "latency.h"
 
 #include <netdb.h> // getaddrinfo

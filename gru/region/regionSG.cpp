@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: regionSG.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Manage regional SG
+ */
+
 #include "region.h"
 
 #include "../errorCode.h" // CREATESGERRNUM, CONFIGSGERRNUM, DELETESGERRNUM

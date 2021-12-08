@@ -1,9 +1,20 @@
+/**
+ * EC2 network latency project
+ *
+ * File: databasePut.cpp
+ *
+ * Author: Jung Chak
+ *
+ * Put test entry
+ */
+
 #include "database.h"
 
 #include <aws/dynamodb/model/PutItemRequest.h> // PutItemRequest
 
 #include "../errorCode.h" // PUTDBENTRYERRNUM
 
+// Put test entry with RES & HDS
 void putDBEntry(Aws::DynamoDB::DynamoDBClient &client,
                 const std::string &tableName, const Aws::String &src,
                 const Aws::String &des, const char *resolveT,
@@ -51,6 +62,7 @@ void putDBEntry(Aws::DynamoDB::DynamoDBClient &client,
   }
 }
 
+// Put test entry without RES & HDS
 void putDBEntry(Aws::DynamoDB::DynamoDBClient &client,
                 const std::string &tableName, const Aws::String &src,
                 const Aws::String &des, const char *uts, const char *rtt) {

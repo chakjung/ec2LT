@@ -1,3 +1,13 @@
+/**
+ * EC2 network latency project
+ *
+ * File: config.h
+ *
+ * Author: Jung Chak
+ *
+ * Gru task configuration
+ */
+
 #pragma once
 
 #include <aws/ec2/model/InstanceType.h> // InstanceType
