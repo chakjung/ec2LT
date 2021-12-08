@@ -1,4 +1,5 @@
-# EC2 network latency project (by Jung Chak and Jamison Heiner)
+# EC2 network latency project
+# by Jung Chak and Jamison Heiner
 
 ## TL;DR (how to use)
 
