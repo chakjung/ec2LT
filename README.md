@@ -45,11 +45,11 @@ There are three main components to the back end: Gru, Minions, and the Big Red B
 
 This is the main component of the back end. It is the EC2 instance in charge of creating the "Minion" EC2 instances (one for each AZ) and for traffic control of latency tests among these Minions. To run this project, simply build and start Gru on an EC2 instance as described above.
 
-As part of its setup, it synchronizes the system clock with `ATSS`, and configures chrony to improve measurement precision. This process takes ~3 hours. Gru also automatically creates the DynamoDB tables to store the latency data (if they don't already exist).
+As part of its setup, it synchronizes the system clock with [ATSS](https://aws.amazon.com/about-aws/whats-new/2017/11/introducing-the-amazon-time-sync-service/), and configures chrony to improve measurement precision. This process takes ~3 hours. Gru also automatically creates the DynamoDB tables, to store the latency data (if they don't already exist).
 
 ### Minion (AKA "Swarm Instance")
 
-This is the component responsible for running the latency tests. As controlled by Gru, a pair of Minions will establish a TCP connection, run 10 latency tests, and report the results back to Gru. These Minions are automatically stood up, configured, and terminated by Gru (when Gru is started) using a startup script and the AWS SDK. This startup script is located in `gru/gru.cpp`.
+This is the component, responsible for running the latency tests. As controlled by Gru, a pair of Minions will establish a TCP connection, run 10 latency tests, and report the results back to Gru. These Minions are automatically stood up, configured, and terminated by Gru, using a startup script and the AWS SDK. This startup script is located in `gru/gru.cpp`.
 
 ### Big Red Button
 
@@ -57,4 +57,5 @@ This component is used in emergencies only, typically. It will remove any runnin
 
 ## Customization
 
-There are many things to customize in each component's `config.h` file. An example is the number of latency tests, executed per pair of connection.
+There are many things to customize in each component's `config.h` file.
+An example is the number of latency tests, executed per pair of connection.
