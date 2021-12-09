@@ -57,5 +57,5 @@ This component is used in emergencies only, typically. It will remove any runnin
 
 ## Customization
 
-There are many things to customize in each component's `config.h` file.
+There are many things to customize in each component's `config.h` file.  
 An example is the number of latency tests, executed per pair of connection.
