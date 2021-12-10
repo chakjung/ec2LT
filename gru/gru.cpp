@@ -126,9 +126,6 @@ int main() {
     std::cout << std::endl;
   }
 
-  // Sleep 3hr for Chrony calibration
-  sleep(10800);
-
   std::cout << "Updating instance informations..." << std::endl;
   updateInstances(Aws::EC2::Model::InstanceStateName::running, regions,
                   UPDATEINSTANCEDELAY);
@@ -159,6 +156,9 @@ int main() {
     region.ConfigSG(SGConfigReq);
   }
   std::cout << "All SGs configured\n" << std::endl;
+
+  // Sleep 3hr for Chrony calibration
+  sleep(10800);
 
   // EC2 Latency Test - proj specific start
   createDBTable(DBTABLENAME, DBSTATTABLENAME, UPDATEDBTABLEDELAY);
